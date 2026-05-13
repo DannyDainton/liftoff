@@ -1,0 +1,237 @@
+# Creating a LiftOff Learning Module
+
+This guide walks you through creating a new learning module for LiftOff. A module is a self-contained learning path with lessons and steps that are validated against the Postman API.
+
+## Module Structure
+
+```
+src/content/modules/<module-id>/
+├── module.json          # Module metadata, lessons, and steps
+├── content.md           # The learning content in markdown
+└── badge.png            # Module completion badge (512x512 PNG)
+```
+
+## Step 1: Write Your Content
+
+Create a markdown file that describes the learning path. Use this format:
+
+```markdown
+# Module Title
+
+A short description of what the learner will accomplish.
+
+## Part 1: Lesson Title
+
+Brief intro to this lesson.
+
+### Step 1: Step Title
+
+Detailed instructions for what the learner needs to do.
+
+- Bullet points for specific actions
+- Include exact values they should enter
+- Reference URLs or resources they need
+
+**Validation:** Describe what should be checked to verify completion.
+For example: "A workspace named 'My Project - [name]' should exist in Postman."
+
+### Step 2: Next Step Title
+
+More instructions...
+
+**Validation:** What to check for this step.
+
+## Part 2: Next Lesson Title
+
+...and so on.
+```
+
+### Content Guidelines
+
+- Each **Part** becomes a **Lesson** (a groupable section)
+- Each **Step** within a Part is an individually validated task worth 10 points
+- Always include a `**Validation:**` block describing what the Postman API should check
+- Be specific about expected names, values, and states
+- Include URLs, code snippets, and exact values the learner will need
+
+### Validation Types
+
+Your validation block should describe one of these check types:
+
+| Check Type | Description | Example |
+|------------|-------------|---------|
+| Workspace exists | Check a workspace with a specific name pattern | "Workspace named 'Artemis II - [name]' exists" |
+| Collection exists | Check a collection exists in a workspace | "Collection containing 'Mission Control' in name" |
+| Environment exists | Check an environment with specific variables | "Environment 'artemis.local' with vars: baseUrl, apiKey" |
+| Environment values | Check specific variable values/types | "baseUrl = 'https://example.com', apiKey is secret" |
+| Request exists | Check a request exists in a collection | "GET request to /health endpoint exists" |
+| API response | Call an API and check the response | "GET /health returns 200 OK" |
+| Collection run | Check that a collection run passed | "All tests in the collection pass" |
+
+## Step 2: Generate the Module
+
+Once your content markdown is ready, use the Claude Code skill:
+
+```
+/liftoff-module create
+```
+
+This will:
+1. Read your content markdown
+2. Generate a `module.json` with proper lesson/step structure and validator IDs
+3. Save it to `src/content/modules/<module-id>/`
+4. Register it in the content loader
+5. Automatically generate all validator functions
+6. Register validators and verify the build passes
+
+## Adding More Lessons Later
+
+To add new lessons or steps to an existing module:
+
+1. Write the new content in markdown (same format as above)
+2. Run `/liftoff-module update` — it will merge the new content and automatically generate validators
+
+## Example Content
+
+Here's a minimal example:
+
+```markdown
+# API Basics
+
+Learn the fundamentals of REST APIs using Postman.
+
+## Part 1: Your First Request
+
+Set up your workspace and make your first API call.
+
+### Step 1: Create a Workspace
+
+Sign in to Postman and create a new blank workspace.
+Name it: **API Basics - [your name]**
+
+**Validation:** Workspace named "API Basics - [name]" exists and was created by the current user.
+
+### Step 2: Create a Collection
+
+Create a new collection in your workspace called **My First Collection** and add a GET request to `https://api.sampleapis.com/coffee/hot`.
+
+**Validation:** Collection named "My First Collection" exists in the workspace with at least one request.
+```
+
+---
+
+### Full Example: Getting Started with Postman
+
+Below is a complete, ready-to-use module markdown. Save it to `docs/` and run `/liftoff-module create` to generate the module.
+
+```markdown
+# Getting Started with Postman
+
+Learn the basics of Postman by creating a workspace, building a collection, and writing your first test — all using a free public API that returns coffee data.
+
+## Part 1: Set Up Your Workspace
+
+Every project in Postman starts with a workspace. In this lesson you'll create one to keep your work organized.
+
+### Step 1: Create a Workspace
+
+1. Open Postman and click **Workspaces** in the top nav, then **Create Workspace**.
+2. Choose **Blank workspace**.
+3. Name it: **Coffee API - [your name]** (for example, *Coffee API - Alex*).
+4. Set visibility to **Personal** and click **Create**.
+
+You now have a dedicated space for all the collections, environments, and requests you'll build in this module.
+
+**Validation:** A workspace whose name starts with "Coffee API -" exists and was created by the current user.
+
+## Part 2: Build Your First Collection
+
+Collections group related API requests together. You'll create one and add a request that fetches coffee data from a public sample API.
+
+### Step 1: Create a Collection
+
+1. Inside your **Coffee API** workspace, click **New** → **Collection**.
+2. Name the collection: **Coffee Service**.
+3. Optionally add a description like "Requests for the Sample APIs coffee endpoint."
+
+**Validation:** A collection named "Coffee Service" exists inside the Coffee API workspace.
+
+### Step 2: Add a GET Request
+
+1. Click **Add a request** inside the **Coffee Service** collection.
+2. Name the request: **List All Coffees**.
+3. Set the method to **GET** and enter the URL:
+   `https://api.sampleapis.com/coffee/hot`
+4. Click **Send** and verify you get a `200 OK` response containing an array of coffee objects.
+
+Each object in the response has `title`, `description`, `ingredients`, and `image` fields.
+
+**Validation:** A GET request named "List All Coffees" exists in the Coffee Service collection with the URL `https://api.sampleapis.com/coffee/hot`.
+
+## Part 3: Write Your First Test
+
+Postman lets you write test scripts that run automatically after every request. You'll add a simple test to make sure the coffee API is returning the data you expect.
+
+### Step 1: Add a Test to Your Request
+
+1. Open the **List All Coffees** request in the **Coffee Service** collection.
+2. Click the **Scripts** tab, then select **Post-response**.
+3. Add the following test script:
+
+       pm.test("Status code is 200", function () {
+           pm.response.to.have.status(200);
+       });
+
+       pm.test("Response is a non-empty array", function () {
+           const json = pm.response.json();
+           pm.expect(json).to.be.an("array").that.is.not.empty;
+       });
+
+       pm.test("Each coffee has a title", function () {
+           const json = pm.response.json();
+           json.forEach(function (coffee) {
+               pm.expect(coffee).to.have.property("title");
+           });
+       });
+
+4. Click **Send** again and check the **Test Results** tab at the bottom — all three tests should pass with a green check.
+
+**Validation:** The "List All Coffees" request has a post-response script containing at least one `pm.test` call, and sending the request returns a 200 status.
+```
+
+## Module Badge
+
+Each module can have a completion badge displayed when the learner finishes all steps.
+
+- **File:** `badge.png` in the module directory (alongside `module.json`)
+- **Dimensions:** 512 x 512 pixels
+- **Format:** PNG with transparency supported
+- **Style:** Achievement emblem / shield / badge — dark background to match the app theme
+
+### Auto-generate with Gemini
+
+Pass `--badge` when creating or updating a module to generate the badge automatically:
+
+```
+/liftoff-module create --badge
+/liftoff-module badge              # standalone, for existing modules
+```
+
+This calls the Google Gemini API directly (no CLI tools needed). Requires a `GEMINI_API_KEY` in `.env.local` — get a free key at [Google AI Studio](https://aistudio.google.com/app/apikey).
+
+You can also run the script directly:
+
+```bash
+npx tsx scripts/generate-badge.ts <module-id> "your prompt here"
+```
+
+### Manual badge
+
+Place any 512x512 PNG at `src/content/modules/<module-id>/badge.png`. If no badge is present, the module's emoji icon is displayed instead.
+
+## Tips
+
+- Keep steps small and focused — one action per step
+- Include screenshots or links to Postman docs where helpful
+- Test the validation logic yourself before publishing
+- Each step awards 10 points — design your module so completing it feels rewarding

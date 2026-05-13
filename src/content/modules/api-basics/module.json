@@ -1,0 +1,41 @@
+{
+  "id": "api-basics",
+  "title": "API Basics",
+  "description": "Learn the fundamentals of REST APIs using Postman.",
+  "color": "#8B5CF6",
+  "icon": "🌐",
+  "lessons": [
+    {
+      "id": "lesson-1-your-first-request",
+      "slug": "your-first-request",
+      "title": "Your First Request",
+      "partNumber": 1,
+      "steps": [
+        {
+          "id": "api-basics-step-1-create-workspace",
+          "stepNumber": 1,
+          "title": "Create a Workspace",
+          "description": "Sign in to Postman and create a new blank workspace.\nName it: **API Basics - [your name]**",
+          "points": 10,
+          "validatorId": "validate-api-basics-create-workspace"
+        },
+        {
+          "id": "api-basics-step-2-create-collection",
+          "stepNumber": 2,
+          "title": "Create a Collection",
+          "description": "Create a new collection in your workspace called **My First Collection** and add a GET request to `https://api.sampleapis.com/coffee/hot`.",
+          "points": 10,
+          "validatorId": "validate-api-basics-create-collection"
+        },
+        {
+          "id": "api-basics-step-3-create-environment",
+          "stepNumber": 3,
+          "title": "Create an Environment",
+          "description": "Create a new environment in your workspace called **Local** and add a variable called **baseURL** with the initial value `https://api.sampleapis.com`.\n\n**Important:** After setting the value, click the **Share** button (or **Persist All**) in the environment editor to sync your values to the cloud. LiftOff validates via the Postman API, which can only see shared/initial values — not local current values.",
+          "points": 10,
+          "validatorId": "validate-api-basics-create-environment"
+        }
+      ]
+    }
+  ]
+}

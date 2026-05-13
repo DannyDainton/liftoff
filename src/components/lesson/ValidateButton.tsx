@@ -1,0 +1,96 @@
+"use client";
+
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useProgress } from "@/context/ProgressContext";
+import { ValidationResult } from "@/types/validation";
+
+interface ValidateButtonProps {
+  stepId: string;
+  validatorId: string;
+  points: number;
+  moduleColor?: string;
+}
+
+export default function ValidateButton({
+  stepId,
+  validatorId,
+  points,
+  moduleColor = "#FF6C37",
+}: ValidateButtonProps) {
+  const { apiKey } = useAuth();
+  const { isStepCompleted, completeStep, validationContext } = useProgress();
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<ValidationResult | null>(null);
+
+  const completed = isStepCompleted(stepId);
+
+  async function handleValidate() {
+    if (!apiKey || completed) return;
+    setLoading(true);
+    setResult(null);
+
+    try {
+      const res = await fetch("/api/postman/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stepId: validatorId,
+          apiKey,
+          context: validationContext,
+        }),
+      });
+      const data: ValidationResult = await res.json();
+      setResult(data);
+
+      if (data.success) {
+        completeStep(stepId, points, data.context);
+      }
+    } catch {
+      setResult({
+        success: false,
+        message: "Failed to validate. Please try again.",
+        pointsAwarded: 0,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (completed) {
+    return (
+      <div className="flex items-center gap-2 mt-4 px-4 py-2.5 rounded-xl bg-[var(--green)]/10 border border-[var(--green)]/25">
+        <span className="text-[var(--green)]">✓</span>
+        <span className="text-[var(--green)] font-medium text-sm">
+          Completed · +{points} pts
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4">
+      <button
+        onClick={handleValidate}
+        disabled={loading}
+        className="px-5 py-2.5 rounded-xl font-semibold text-sm text-white transition-all disabled:opacity-40 hover:opacity-90"
+        style={{
+          background: moduleColor,
+          boxShadow: `0 4px 16px ${moduleColor}30`,
+        }}
+      >
+        {loading ? "Validating..." : "Validate"}
+      </button>
+      {result && !result.success && (
+        <div className="mt-3 px-4 py-3 rounded-xl bg-[var(--pink)]/8 border border-[var(--pink)]/20">
+          <p className="text-[var(--pink)] text-sm">{result.message}</p>
+        </div>
+      )}
+      {result && result.success && !completed && (
+        <div className="mt-3 px-4 py-3 rounded-xl bg-[var(--green)]/8 border border-[var(--green)]/20">
+          <p className="text-[var(--green)] text-sm">{result.message}</p>
+        </div>
+      )}
+    </div>
+  );
+}

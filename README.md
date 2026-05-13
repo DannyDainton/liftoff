@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LiftOff
 
-## Getting Started
+Interactive learning platform with real-time Postman API validation. Learners complete hands-on steps in Postman, then validate their work through the app — earning points and ranks as they progress.
 
-First, run the development server:
+## Quick Start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000), connect your Postman API key, and start a module.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How It Works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Learner connects** with their Postman API key
+2. **Each step** has instructions and a **Validate** button
+3. Clicking Validate calls the Postman API (server-side, via Next.js route handlers) to verify the learner actually completed the step
+4. Successful validation awards **10 points** per step
+5. Points unlock **ranks and badges** on the dashboard
 
-## Learn More
+### Architecture
 
-To learn more about Next.js, take a look at the following resources:
+```
+Browser → POST /api/postman/validate → Server-side validator → Postman API
+                                                             → Artemis API (for mission steps)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+All Postman API calls happen server-side to avoid CORS issues. The learner's API key is passed per-request and never stored on the server.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Creating Modules
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Adding new learning content is simple — write a markdown file and let the tooling do the rest. Module content is just structured markdown: `# headings` become lessons, `### steps` become validated tasks. No code required to author content.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+/liftoff-module create [--badge]   → new module from markdown
+/liftoff-module update [--badge]   → add lessons to an existing module
+/liftoff-module badge              → generate a badge for an existing module
+/liftoff-module sync               → regenerate missing validators
+```
+
+The skill parses your markdown, generates the module definition, creates server-side validators that check the learner's Postman workspace, and wires everything into the app automatically.
+
+Each module can include a **completion badge** — a 512x512 PNG displayed when the learner finishes all steps. Pass `--badge` to auto-generate one via the Google Gemini API, or place a `badge.png` manually in the module directory. Requires a `GEMINI_API_KEY` in `.env.local`.
+
+**[Full module authoring guide →](docs/creating-a-module.md)**
+
+---
+
+## Project Structure
+
+```
+src/
+├── app/                          # Next.js App Router pages + API routes
+│   ├── api/postman/              # Server-side Postman API proxy
+│   │   ├── validate/route.ts     # Unified validation endpoint
+│   │   └── validate-key/route.ts # API key verification
+│   ├── auth/                     # Authentication page
+│   ├── modules/                  # Module lesson pages
+│   └── results/                  # Score and rank display
+├── components/                   # React components
+│   ├── auth/                     # ApiKeyForm, AuthGuard
+│   ├── lesson/                   # StepCard, ValidateButton, ProgressBar
+│   └── scoring/                  # PointsDisplay, RankBadge
+├── content/modules/              # Module definitions (one dir per module)
+│   └── artemis-mission-control/
+│       └── module.json           # Lessons, steps, validator mappings
+├── context/                      # React contexts (auth, progress)
+├── lib/
+│   ├── postman-api.ts            # Server-side Postman API client
+│   ├── validators/               # Validator functions (one subdir per module)
+│   │   ├── index.ts              # Registry mapping validatorId → function
+│   │   └── artemis-mission-control/
+│   ├── scoring.ts                # Rank definitions and calculation
+│   └── content-loader.ts         # Module/lesson data loader
+└── types/                        # TypeScript type definitions
+```
+
+## Deployment
+
+### Vercel (Recommended)
+
+```bash
+npm install -g vercel
+vercel
+```
+
+No environment variables required — the app is stateless. All API keys are provided by the learner at runtime.
+
+### Railway / Any Node.js Host
+
+```bash
+npm run build
+npm start
+```
+
+The app runs on port 3000 by default. Set the `PORT` environment variable to change it.
+
+### Docker
+
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## Scoring
+
+| Rank | Points | Badge |
+|------|--------|-------|
+| Space Cadet | 0 | 🌟 |
+| Mission Specialist | 50 | 🛰️ |
+| Commander | 100 | ⭐ |
+| Flight Director | 500 | 🚀 |
+| Galaxy Brain | 1,000 | 🧠 |
+| Supernova | 5,000 | 💥 |
+| Mass Relay | 10,000 | 🌌 |
+
+Badge milestones at 50, 100, 500, 1K, 5K, and 10K points.
+
+## Tech Stack
+
+- **Next.js 16** (App Router, TypeScript)
+- **Tailwind CSS v4** with dark glassmorphism theme
+- **React Context + localStorage** for state persistence
+- **Postman API** for workspace/collection/environment validation

@@ -1,63 +1,387 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { useProgress } from "@/context/ProgressContext";
+import { getAllModules } from "@/lib/content-loader";
+import { calculateRank, getNextRank } from "@/lib/scoring";
+import RankBadge from "@/components/scoring/RankBadge";
+
+const BADGE_VERSION = "1";
+
+function ProfileSection() {
+  const { profile, isAuthenticated, clearApiKey, isRegistered, discordProfile, signInWithDiscord } = useAuth();
+  const { points } = useProgress();
+  const rank = calculateRank(points);
+  const next = getNextRank(points);
+
+  if (!isAuthenticated || !profile) {
+    return (
+      <div className="glass-card p-8 text-center">
+        <div className="text-5xl mb-4">🔑</div>
+        <h2 className="text-xl font-bold text-white mb-2">
+          Connect to Postman
+        </h2>
+        <p className="text-[var(--text-secondary)] text-sm mb-6">
+          Sign in with your Postman API key to track progress and validate your
+          learning.
+        </p>
+        <Link href="/auth" className="btn-primary inline-block">
+          Connect
+        </Link>
+      </div>
+    );
+  }
+
+  const progressToNext = next
+    ? ((points - rank.minPoints) / (next.minPoints - rank.minPoints)) * 100
+    : 100;
+
+  const displayName = isRegistered && discordProfile
+    ? discordProfile.displayName
+    : profile.fullName || profile.username;
+  const displayAvatar = isRegistered && discordProfile?.avatarUrl
+    ? discordProfile.avatarUrl
+    : profile.avatar;
+  const displaySubtitle = isRegistered && discordProfile
+    ? discordProfile.username
+    : profile.username;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="glass-card p-8">
+      <div className="flex items-center gap-4 mb-6">
+        {displayAvatar ? (
+          <img
+            src={displayAvatar}
+            alt={displayName}
+            className="w-14 h-14 rounded-full border-2 border-[var(--purple)]"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--orange)] to-[var(--pink)] flex items-center justify-center text-2xl font-bold text-white">
+            {displayName[0]?.toUpperCase()}
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-white truncate">
+              {displayName}
+            </h2>
+            {isRegistered && (
+              <span className="flex-shrink-0 text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-[#5865F2]/15 text-[#5865F2] border border-[#5865F2]/20">
+                Discord
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-[var(--text-tertiary)] truncate">
+            @{displaySubtitle}
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <button
+          onClick={clearApiKey}
+          className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+        >
+          Sign out
+        </button>
+      </div>
+
+      {!isRegistered && (
+        <button
+          onClick={signInWithDiscord}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 mb-6 rounded-lg text-sm font-medium text-[#5865F2] bg-[#5865F2]/10 border border-[#5865F2]/20 hover:bg-[#5865F2]/20 transition-colors"
+        >
+          <svg width="16" height="12" viewBox="0 0 71 55" fill="currentColor">
+            <path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.7 40.7 0 00-1.8 3.7 54 54 0 00-16.2 0A37.4 37.4 0 0025.4.3a.2.2 0 00-.2-.1 58.4 58.4 0 00-14.7 4.6.2.2 0 00-.1 0A60.4 60.4 0 00.4 45.1a.3.3 0 000 .2A58.8 58.8 0 0018.1 55a.2.2 0 00.2-.1 42.1 42.1 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.6.2.2 0 01 0-.4c.4-.3.7-.6 1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.6.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1A58.6 58.6 0 0070.6 45.3a.2.2 0 000-.2A60 60 0 0060.2 5a.2.2 0 00-.1 0zM23.7 37a6.9 6.9 0 01-6.4-7.1 6.8 6.8 0 016.4-7.1 6.8 6.8 0 016.4 7.1 6.9 6.9 0 01-6.4 7.1zm23.6 0a6.9 6.9 0 01-6.4-7.1 6.8 6.8 0 016.4-7.1 6.8 6.8 0 016.4 7.1 6.9 6.9 0 01-6.4 7.1z" />
+          </svg>
+          Save progress with Discord
+        </button>
+      )}
+
+      <div className="flex items-center gap-3 mb-4">
+        <RankBadge title={rank.title} badgeImg={rank.badgeImg} badgeImgFull={rank.badgeImgFull} size={80} variant="full" />
+        <div>
+          <p className="font-bold text-white">{rank.title}</p>
+          <p className="text-xs text-[var(--text-tertiary)]">
+            {rank.description}
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-2">
+        <div className="flex justify-between text-sm mb-1.5">
+          <span className="font-mono font-bold text-[var(--orange)]">
+            {points} pts
+          </span>
+          {next && (
+            <span className="text-[var(--text-tertiary)]">
+              {next.minPoints - points} pts to {next.title}
+            </span>
+          )}
+        </div>
+        <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{
+              width: `${Math.min(progressToNext, 100)}%`,
+              background: "linear-gradient(90deg, var(--orange), var(--pink), var(--purple), var(--cyan))",
+            }}
+          />
+        </div>
+      </div>
+
+      <BadgeRow points={points} />
+      <EarnedBadges />
+    </div>
+  );
+}
+
+function BadgeRow({ points }: { points: number }) {
+  const milestones = [
+    { pts: 50, icon: "🚀", label: "50" },
+    { pts: 100, icon: "🌍", label: "100" },
+    { pts: 500, icon: "🌙", label: "500" },
+    { pts: 1000, icon: "☄️", label: "1K" },
+    { pts: 5000, icon: "⭐", label: "5K" },
+    { pts: 10000, icon: "🌌", label: "10K" },
+  ];
+
+  const lastEarnedIdx = milestones.reduce(
+    (acc, m, i) => (points >= m.pts ? i : acc),
+    -1
+  );
+
+  return (
+    <div className="mt-4">
+      <div className="flex items-center gap-0">
+        {milestones.map((m, i) => {
+          const earned = points >= m.pts;
+          const isTrail = i <= lastEarnedIdx;
+          return (
+            <div key={m.pts} className="flex items-center flex-1">
+              <div
+                className={`flex flex-col items-center flex-1 py-2 rounded-lg transition-all ${
+                  earned ? "bg-white/5" : "opacity-30"
+                }`}
+                title={`${m.pts} points`}
+              >
+                <span className={`text-lg ${earned ? "" : "grayscale"}`}>
+                  {m.icon}
+                </span>
+                <span className="text-[10px] font-mono text-[var(--text-tertiary)] mt-0.5">
+                  {m.label}
+                </span>
+              </div>
+              {i < milestones.length - 1 && (
+                <div
+                  className={`h-0.5 w-2 flex-shrink-0 rounded-full transition-colors ${
+                    isTrail && i < lastEarnedIdx ? "bg-[var(--orange)]" : "bg-white/10"
+                  }`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function EarnedBadges() {
+  const modules = getAllModules();
+  const { isStepCompleted } = useProgress();
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+
+  const earned = modules.filter((mod) => {
+    const total = mod.lessons.reduce((a, l) => a + l.steps.length, 0);
+    const done = mod.lessons.reduce(
+      (a, l) => a + l.steps.filter((s) => isStepCompleted(s.id)).length,
+      0
+    );
+    return done === total && total > 0;
+  });
+
+  if (earned.length === 0) return null;
+
+  return (
+    <div className="mt-6 pt-5 border-t border-white/5">
+      <p className="text-xs font-mono uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
+        Earned Badges
+      </p>
+      <div className="flex gap-3 flex-wrap">
+        {earned.map((mod) => (
+          <Link
+            key={mod.id}
+            href={`/modules/${mod.id}`}
+            className="group relative"
+            title={mod.title}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            {!imgErrors[mod.id] ? (
+              <img
+                src={`/api/modules/${mod.id}/badge?v=${BADGE_VERSION}`}
+                alt={`${mod.title} badge`}
+                width={56}
+                height={56}
+                className="w-14 h-14 rounded-xl transition-transform group-hover:scale-110"
+                style={{ boxShadow: `0 0 16px ${mod.color}30` }}
+                onError={() => setImgErrors((prev) => ({ ...prev, [mod.id]: true }))}
+              />
+            ) : (
+              <div
+                className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl transition-transform group-hover:scale-110"
+                style={{
+                  background: `linear-gradient(135deg, ${mod.color}30, ${mod.color}10)`,
+                  border: `2px solid ${mod.color}60`,
+                }}
+              >
+                {mod.icon}
+              </div>
+            )}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ModuleCard({
+  module,
+}: {
+  module: { id: string; title: string; description: string; color: string; icon: string; lessons: { slug: string; steps: { id: string }[] }[] };
+}) {
+  const { isStepCompleted } = useProgress();
+  const [imgError, setImgError] = useState(false);
+  const totalSteps = module.lessons.reduce((a, l) => a + l.steps.length, 0);
+  const completed = module.lessons.reduce(
+    (a, l) => a + l.steps.filter((s) => isStepCompleted(s.id)).length,
+    0
+  );
+  const percentage = totalSteps > 0 ? (completed / totalSteps) * 100 : 0;
+  const allDone = completed === totalSteps && totalSteps > 0;
+
+  return (
+    <Link
+      href={`/modules/${module.id}`}
+      className="glass-card p-6 block hover:translate-y-[-2px] transition-all group"
+      style={{ borderLeftWidth: "4px", borderLeftColor: module.color }}
+    >
+      <div className="flex items-start gap-4">
+        {!imgError ? (
+          <img
+            src={`/api/modules/${module.id}/badge?v=${BADGE_VERSION}`}
+            alt={`${module.title} badge`}
+            width={56}
+            height={56}
+            className="w-14 h-14 rounded-2xl flex-shrink-0"
+            style={{ boxShadow: `0 0 20px ${module.color}30` }}
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+            style={{ background: `${module.color}15`, border: `1px solid ${module.color}30` }}
           >
-            Documentation
-          </a>
+            {module.icon}
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span
+              className="text-[10px] font-mono uppercase tracking-widest font-semibold"
+              style={{ color: module.color }}
+            >
+              {module.lessons.length} {module.lessons.length === 1 ? "lesson" : "lessons"} · {totalSteps} steps
+            </span>
+          </div>
+          <h3 className="text-lg font-bold text-white group-hover:text-[var(--text-primary)] mb-1.5">
+            {module.title}
+          </h3>
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-2">
+            {module.description}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <div className="flex justify-between text-xs mb-1.5">
+          <span className="text-[var(--text-tertiary)]">
+            {completed}/{totalSteps} completed
+          </span>
+          <span className="font-mono" style={{ color: module.color }}>
+            {Math.round(percentage)}%
+          </span>
+        </div>
+        <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${percentage}%`, background: module.color }}
+          />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+export default function Home() {
+  const modules = getAllModules();
+
+  return (
+    <div className="min-h-screen">
+      <header className="relative overflow-hidden py-20 px-6">
+        <div className="absolute inset-0 pointer-events-none">
+          <div
+            className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20 blur-3xl"
+            style={{ background: "radial-gradient(circle, var(--purple), transparent)" }}
+          />
+          <div
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full opacity-15 blur-3xl"
+            style={{ background: "radial-gradient(circle, var(--orange), transparent)" }}
+          />
+        </div>
+
+        <div className="relative max-w-5xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--orange)]/10 border border-[var(--orange)]/20 text-[var(--orange)] text-sm font-medium mb-8">
+            <span>🚀</span>
+            <span>Powered by Postman</span>
+          </div>
+          <h1 className="text-6xl md:text-7xl font-black tracking-tight mb-4">
+            <span className="text-white">Lift</span>
+            <span className="gradient-text">Off</span>
+          </h1>
+          <p className="text-xl text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed">
+            Interactive, hands-on learning modules with{" "}
+            <span className="text-white font-medium">real-time API validation</span>.
+            Complete steps in Postman, validate your work, earn your rank.
+          </p>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-6 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1 order-2 lg:order-1">
+            <ProfileSection />
+          </div>
+
+          <div className="lg:col-span-2 order-1 lg:order-2">
+            <div className="flex items-center gap-3 mb-6">
+              <h2 className="text-2xl font-bold text-white">Modules</h2>
+              <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-white/5 text-[var(--text-tertiary)]">
+                {modules.length}
+              </span>
+            </div>
+            <div className="flex flex-col gap-4">
+              {modules.map((mod) => (
+                <ModuleCard key={mod.id} module={mod} />
+              ))}
+            </div>
+
+            {modules.length === 1 && (
+              <div className="glass-card p-6 mt-4 text-center border-dashed">
+                <p className="text-[var(--text-tertiary)] text-sm">
+                  More modules coming soon.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>
