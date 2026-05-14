@@ -6,27 +6,44 @@ Interactive learning platform with real-time Postman API validation. Learners co
 
 ```bash
 npm install
+cp .env.local.example .env.local  # add your Supabase + Gemini keys
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000), connect your Postman API key, and start a module.
+Open [http://localhost:3000](http://localhost:3000) and sign in with Discord.
 
 ## How It Works
 
-1. **Learner connects** with their Postman API key
-2. **Each step** has instructions and a **Validate** button
-3. Clicking Validate calls the Postman API (server-side, via Next.js route handlers) to verify the learner actually completed the step
-4. Successful validation awards **10 points** per step
-5. Points unlock **ranks and badges** on the dashboard
+1. **Sign in with Discord** to create your profile and persist progress
+2. **Connect your Postman API key** at the module level to validate exercises
+3. **Each step** has instructions and a **Validate** button
+4. Clicking Validate calls the Postman API (server-side) to verify the learner completed the step
+5. Successful validation awards **10 points** per step
+6. Points unlock **ranks and badges** on the dashboard
+7. **Switch Postman orgs** anytime — validation context resets but points and completed steps are preserved
+
+### Two-Tier Auth
+
+LiftOff uses two independent authentication layers:
+
+- **Discord OAuth** (via Supabase Auth) — persistent identity. Sign in once, your progress is saved across sessions and devices.
+- **Postman API Key** (sessionStorage) — ephemeral, per-session. Required to validate exercises. Never stored server-side.
+
+| State | Postman Key | Discord | Progress Storage |
+|-------|------------|---------|-----------------|
+| Anonymous | No | No | None |
+| Browsing | No | Yes | Can view saved progress, can't validate |
+| Postman-only | Yes | No | localStorage (local only) |
+| Registered | Yes | Yes | Supabase (persistent) |
 
 ### Architecture
 
 ```
 Browser → POST /api/postman/validate → Server-side validator → Postman API
-                                                             → Artemis API (for mission steps)
+                                     → Supabase (persist results for registered users)
 ```
 
-All Postman API calls happen server-side to avoid CORS issues. The learner's API key is passed per-request and never stored on the server.
+All Postman API calls happen server-side to avoid CORS issues. The learner's API key is passed per-request and never stored on the server. For registered users, validation results are also persisted to Supabase.
 
 ---
 
@@ -54,62 +71,79 @@ Each module can include a **completion badge** — a 512x512 PNG displayed when 
 ```
 src/
 ├── app/                          # Next.js App Router pages + API routes
-│   ├── api/postman/              # Server-side Postman API proxy
-│   │   ├── validate/route.ts     # Unified validation endpoint
-│   │   └── validate-key/route.ts # API key verification
-│   ├── auth/                     # Authentication page
-│   ├── modules/                  # Module lesson pages
+│   ├── api/
+│   │   ├── auth/                 # Discord OAuth callback + sign-out
+│   │   └── postman/              # Postman API proxy + validation
+│   ├── auth/                     # Discord sign-in page
+│   ├── modules/                  # Module and lesson pages
 │   └── results/                  # Score and rank display
-├── components/                   # React components
-│   ├── auth/                     # ApiKeyForm, AuthGuard
+├── components/
+│   ├── auth/                     # DiscordSignInButton, PostmanConnectionBar,
+│   │                             # AuthGuard, ImportProgressModal,
+│   │                             # DiscordCommunityModal
 │   ├── lesson/                   # StepCard, ValidateButton, ProgressBar
-│   └── scoring/                  # PointsDisplay, RankBadge
+│   └── scoring/                  # PointsDisplay, RankBadge, CelebrationOverlay
 ├── content/modules/              # Module definitions (one dir per module)
-│   └── artemis-mission-control/
-│       └── module.json           # Lessons, steps, validator mappings
-├── context/                      # React contexts (auth, progress)
+├── context/
+│   ├── AuthContext.tsx            # Dual auth: Discord (Supabase) + Postman (session)
+│   └── ProgressContext.tsx        # Dual backend: Supabase + localStorage fallback
 ├── lib/
+│   ├── supabase/                 # Supabase clients (browser, server, proxy)
 │   ├── postman-api.ts            # Server-side Postman API client
 │   ├── validators/               # Validator functions (one subdir per module)
-│   │   ├── index.ts              # Registry mapping validatorId → function
-│   │   └── artemis-mission-control/
 │   ├── scoring.ts                # Rank definitions and calculation
 │   └── content-loader.ts         # Module/lesson data loader
+├── proxy.ts                      # Next.js 16 proxy (session refresh)
 └── types/                        # TypeScript type definitions
+supabase/
+└── migrations/
+    └── 001_initial_schema.sql    # Database schema, RLS policies, functions
 ```
+
+---
+
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous key (safe to expose — RLS protects data) |
+| `GEMINI_API_KEY` | No | Google Gemini API key for badge generation |
+
+---
 
 ## Deployment
 
+### Supabase Setup
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Run `supabase/migrations/001_initial_schema.sql` in the [SQL Editor](https://supabase.com/dashboard/project/_/sql/new)
+3. Enable **Discord** under Authentication → Providers:
+   - Create a Discord application at [discord.com/developers](https://discord.com/developers/applications)
+   - Copy Client ID and Client Secret into Supabase
+   - Add redirect URL: `https://<your-domain>/api/auth/callback`
+4. Copy the project URL and anon key into your environment variables
+
 ### Vercel (Recommended)
 
-```bash
-npm install -g vercel
-vercel
-```
+1. Push to GitHub
+2. Import the repo at [vercel.com/new](https://vercel.com/new) — point to repo root `/`
+3. Add environment variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `GEMINI_API_KEY`
+4. Deploy
+5. Add your Vercel production URL to:
+   - Discord Developer Portal → OAuth2 → Redirects: `https://<app>.vercel.app/api/auth/callback`
+   - Supabase → Authentication → URL Configuration → Redirect URLs: same URL
 
-No environment variables required — the app is stateless. All API keys are provided by the learner at runtime.
-
-### Railway / Any Node.js Host
+### Any Node.js Host
 
 ```bash
 npm run build
 npm start
 ```
 
-The app runs on port 3000 by default. Set the `PORT` environment variable to change it.
+Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` as environment variables. The app runs on port 3000 by default (override with `PORT`).
 
-### Docker
-
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
+---
 
 ## Scoring
 
@@ -123,11 +157,11 @@ CMD ["npm", "start"]
 | Supernova | 5,000 | 💥 |
 | Mass Relay | 10,000 | 🌌 |
 
-Badge milestones at 50, 100, 500, 1K, 5K, and 10K points.
-
 ## Tech Stack
 
-- **Next.js 16** (App Router, TypeScript)
+- **Next.js 16** (App Router, TypeScript, Turbopack)
+- **React 19** with Context + useReducer for state management
+- **Supabase** (PostgreSQL + Auth with Discord OAuth + RLS)
 - **Tailwind CSS v4** with dark glassmorphism theme
-- **React Context + localStorage** for state persistence
 - **Postman API** for workspace/collection/environment validation
+- **Vercel** for deployment
