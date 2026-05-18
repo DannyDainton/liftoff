@@ -90,6 +90,37 @@ More instructions...
 - Add the Postman environment share notice to any step that sets environment variables:
   > **Important:** After setting values, click the **Share** button (or **Persist All**) in the environment editor to sync your values to the cloud. LiftOff validates via the Postman API, which can only see shared/initial values — not local current values.
 
+#### Rich content requirements — CRITICAL:
+
+Step descriptions are the ONLY thing the learner sees. They must be self-contained and actionable. Do NOT summarize — include everything the learner needs:
+
+- **Numbered instructions:** Every step should have numbered sub-steps (1, 2, 3...) so the learner knows the exact sequence of actions.
+- **Exact JSON payloads:** If the tutorial includes request bodies, include the FULL JSON in a fenced code block. Never say "send a POST with your details" — show the exact payload.
+- **Agent Mode / AI prompts:** If the step involves prompting an AI tool, include the exact prompt text in a blockquote (`>`). The learner should be able to copy-paste it.
+- **Expected outcomes:** State what the learner should see after each action (e.g. "expect `201 Created`", "the Visualize tab shows your dashboard").
+- **Troubleshooting tips:** If the tutorial mentions common errors (401, missing values, etc.), include them with fixes.
+- **Reference tables:** If a step involves choosing from allowed values (categories, phases, crew members, etc.), include the table of valid options.
+- **Reference links:** If the tutorial links to additional resources, guides, or documentation, include them as markdown links.
+- **Cautions / warnings:** If there are gotchas (e.g. "anomaly logs can't be deleted"), include them prominently.
+
+Bad example (too terse):
+> Create 3 mission logs using POST /logs with different categories covering navigation, life-support, and communication.
+
+Good example (actionable):
+> Create 3 mission logs using **POST /logs**. Each log needs `title`, `description`, `phase`, `category`, and `crew_member`.
+>
+> **Log 1/3 — Navigation Check:**
+> ```json
+> {
+>   "title": "Pre-flight navigation check complete",
+>   "description": "All star trackers aligned and verified for lunar transit",
+>   "phase": "pre-launch",
+>   "category": "navigation",
+>   "crew_member": "wiseman"
+> }
+> ```
+> Expect `201 Created` — note the `log.id` in the response for later.
+
 ### 4. Save the content.md
 
 Pick a `module-id` (kebab-case derived from the title) and save the file:

@@ -12,20 +12,31 @@ export const validateSplashdown: ValidatorFn = async (apiKey, context) => {
   if (typeof apiKeyValue !== "string") return apiKeyValue;
 
   try {
-    const res = await fetch(`${ARTEMIS_API}/mission`, {
-      headers: { "x-api-key": apiKeyValue },
-    });
-    if (!res.ok) {
+    const [missionRes, briefRes] = await Promise.all([
+      fetch(`${ARTEMIS_API}/mission`, {
+        headers: { "x-api-key": apiKeyValue },
+      }),
+      fetch(`${ARTEMIS_API}/mission/brief`, {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKeyValue,
+          "Content-Type": "application/json",
+        },
+        body: "{}",
+      }),
+    ]);
+
+    if (!missionRes.ok) {
       return {
         success: false,
-        message: `GET /mission returned ${res.status}.`,
+        message: `GET /mission returned ${missionRes.status}.`,
         pointsAwarded: 0,
       };
     }
 
-    const data = await res.json();
+    const mission = await missionRes.json();
     const completion =
-      data.mission_status?.completion_percentage ?? data.completion_percentage;
+      mission.mission_status?.completion_percentage ?? mission.completion_percentage;
 
     if (completion === 100) {
       return {
@@ -37,14 +48,30 @@ export const validateSplashdown: ValidatorFn = async (apiKey, context) => {
       };
     }
 
-    const steps = data.mission_status?.steps || [];
-    const incomplete = steps.filter(
-      (s: { completed: boolean }) => !s.completed
-    );
+    const steps = mission.mission_status?.steps || [];
+    const incomplete = steps
+      .filter((s: { completed: boolean }) => !s.completed)
+      .map((s: { label: string }) => s.label);
+
+    let hint = `Mission at ${completion ?? "?"}% complete.`;
+
+    if (briefRes.ok) {
+      const briefData = await briefRes.json();
+      const recs: string[] = briefData.briefing?.recommendations || [];
+      if (recs.length > 0) {
+        hint += " " + recs.join(" ");
+      }
+    }
+
+    if (incomplete.length > 0) {
+      hint += ` Remaining phases: ${incomplete.join(", ")}.`;
+    }
+
+    hint += " Create more logs across different categories (navigation, life-support, communication, science, crew-status) to advance the mission to 100%.";
 
     return {
       success: false,
-      message: `Mission at ${completion ?? "?"}% complete. ${incomplete.length} step(s) remaining. Complete all mission steps and try again.`,
+      message: hint,
       pointsAwarded: 0,
     };
   } catch {

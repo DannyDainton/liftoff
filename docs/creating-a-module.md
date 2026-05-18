@@ -54,6 +54,25 @@ More instructions...
 - Be specific about expected names, values, and states
 - Include URLs, code snippets, and exact values the learner will need
 
+### Rich Content — CRITICAL
+
+Step descriptions are the ONLY thing the learner sees. They must be **self-contained and actionable** — the learner should never need to leave the page to figure out what to do. Every step should include:
+
+| Element | When to include | Example |
+|---------|----------------|---------|
+| Numbered instructions | Always | 1. Open the request 2. Set the body 3. Click Send |
+| JSON payloads | Any step with a request body | Full JSON in a fenced code block |
+| AI/Agent Mode prompts | Any step using Postman Agent Mode | Exact prompt in a blockquote |
+| Expected outcomes | Always | "Expect `201 Created`", "Dashboard appears in Visualize tab" |
+| Troubleshooting tips | When common errors exist | "If you get a 401, check that apiKey is set" |
+| Reference tables | When choosing from allowed values | Table of valid phases, categories, etc. |
+| Reference links | When external docs help | Link to API guides, story context, etc. |
+| Cautions/warnings | When gotchas exist | "Anomaly logs cannot be deleted" |
+
+**Bad:** "Create 3 logs using POST /logs with different categories."
+
+**Good:** Full numbered instructions with each JSON payload, expected status codes, a table of allowed values, and a note about anomaly logs being permanent.
+
 ### Validation Types
 
 Your validation block should describe one of these check types:

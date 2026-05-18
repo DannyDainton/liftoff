@@ -69,6 +69,19 @@ Create a brand new module from a content markdown file.
 - Every step gets 10 points
 - **URLs in descriptions must use markdown link syntax** `[text](url)` — bare URLs will not render as clickable links. When copying descriptions from content.md, preserve all markdown link formatting.
 
+### Rich description requirements — CRITICAL:
+Step descriptions are the ONLY thing the learner sees in the UI. Copy the FULL content from content.md — do NOT summarize, truncate, or paraphrase. Descriptions must include:
+- **Numbered instructions** (1, 2, 3...) for the exact sequence of actions
+- **Exact JSON payloads** in fenced code blocks — never summarize request bodies
+- **AI/Agent Mode prompts** in blockquotes — the learner should copy-paste these
+- **Expected outcomes** after each action (status codes, what appears in the UI)
+- **Troubleshooting tips** for common errors
+- **Reference tables** for allowed values (categories, phases, etc.)
+- **Reference links** to external guides or documentation
+- **Cautions/warnings** about gotchas (e.g. data that can't be deleted)
+
+The description field supports full markdown including headings, code blocks, tables, blockquotes, and lists. Use them.
+
 ---
 
 ## Subcommand: `update`

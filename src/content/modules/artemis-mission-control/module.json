@@ -15,7 +15,7 @@
           "id": "step-1-create-workspace",
           "stepNumber": 1,
           "title": "Create a Blank Workspace",
-          "description": "Sign in to Postman and create a new blank workspace named **Artemis II - [your name]**.",
+          "description": "1. Open [postman.com](https://postman.com) and sign in\n2. Click **Workspaces** in the top nav → **Create Workspace**\n3. Choose **Blank workspace**\n4. Name it: **Artemis II - [your name]** (e.g. *Artemis II - Alex*)\n5. Set visibility to **Personal** and click **Create**",
           "points": 10,
           "validatorId": "validate-workspace"
         },
@@ -23,15 +23,15 @@
           "id": "step-2-import-openapi",
           "stepNumber": 2,
           "title": "Import the OpenAPI Spec",
-          "description": "Click the **+** icon, select **Import**, and paste this URL: `https://raw.githubusercontent.com/mishra-aanchal/artemis-mission-control-api-workshop/refs/heads/main/openapi.yaml`. Postman will auto-generate a collection from the spec.",
+          "description": "1. Click the **+** icon and select **Import**\n2. Paste this URL:\n\n```\nhttps://raw.githubusercontent.com/mishra-aanchal/artemis-mission-control-api-workshop/refs/heads/main/openapi.yaml\n```\n\n3. Confirm the import\n\nPostman auto-generates a collection from the spec with all the Artemis API endpoints ready to use.",
           "points": 10,
           "validatorId": "validate-collection"
         },
         {
           "id": "step-3-create-environment",
           "stepNumber": 3,
-          "title": "Create Environment",
-          "description": "Create an environment called **artemis.local** with variables: `baseUrl`, `apiKey`, and `logId`.\n\n**Important:** After adding variables, click the **Share** button (or **Persist All**) to sync values to the cloud. LiftOff validates via the Postman API, which can only see shared/initial values — not local current values.",
+          "title": "Create Environment with Agent Mode",
+          "description": "1. Open **Agent Mode** (the AI chat panel in Postman)\n2. Enter this prompt:\n\n> Create an environment called artemis.local with variables - baseUrl, apiKey and logId.\n\n3. Verify the environment **artemis.local** appears with all three variables\n\n**Important:** After adding variables, click the **Share** button (or **Persist All**) to sync values to the cloud. LiftOff validates via the Postman API, which can only see shared values — not local values.",
           "points": 10,
           "validatorId": "validate-environment-exists"
         },
@@ -39,7 +39,7 @@
           "id": "step-4-update-env-variable",
           "stepNumber": 4,
           "title": "Update Environment Variables",
-          "description": "Set `baseUrl` to `https://artemis.up.railway.app` and mark `apiKey` as a secret variable.\n\n**Important:** After updating values, click **Share** (or **Persist All**) to sync to the cloud.",
+          "description": "1. Open the **artemis.local** environment\n2. Set `baseUrl` to: `https://artemis.up.railway.app`\n3. Mark `apiKey` as type **secret** (this hides the value during screen sharing)\n\n**Important:** After updating values, click **Share** (or **Persist All**) to sync to the cloud.",
           "points": 10,
           "validatorId": "validate-environment-values"
         }
@@ -55,15 +55,15 @@
           "id": "step-5-health-check",
           "stepNumber": 1,
           "title": "Health Check & Registration",
-          "description": "Send the **Health Check** GET request to verify the API is running (expect 200 OK). Then send **POST /register** with your name and email to register as a crew member. Save the returned API key to your `apiKey` environment variable.",
+          "description": "**5A — Verify API Health**\n\n1. Find the **Health Check** request in your collection\n2. Click **Send** — expect a `200 OK` response\n\nFor mission context, check out the [Artemis story](https://artemis.up.railway.app/guide/story).\n\n**5B — Register as Crew Member**\n\n1. Open **Register Crew Member** (`POST /register`)\n2. Go to the **Body** tab and enter:\n\n```json\n{\n  \"name\": \"Your Name\",\n  \"email\": \"your.email@example.com\"\n}\n```\n\n3. Click **Send** — the response includes your callsign, API key, and sigil (SVG badge)\n\n**Tip:** Use your real email — `{{$randomEmail}}` creates a new user every time. Re-sending with the same email returns your existing API key.\n\n**Important:** After receiving your API key, save it to the `apiKey` variable in your environment and click **Share/Persist All**.",
           "points": 10,
           "validatorId": "validate-health-and-register"
         },
         {
           "id": "step-6-save-api-key",
           "stepNumber": 2,
-          "title": "Save API Key to Environment",
-          "description": "Verify your `apiKey` environment variable is populated with the key from registration. Test by sending **GET /mission** — you should get a 200 OK response.",
+          "title": "Auto-Save API Key with Agent Mode",
+          "description": "1. Stay on the **Register Crew Member** request\n2. Start a **new chat** in Agent Mode\n3. Drag and drop the Register request into the chat\n4. Enter this prompt:\n\n> Generate a script to save the api key from response to the environment variable apiKey\n\n5. **Re-send** the Register request to trigger the script\n6. Open the Environment panel — `apiKey` should now be populated\n7. Test it: open **Get Mission Overview** (`GET /mission`) → Send → expect `200 OK`\n\n**Troubleshooting 401 errors:**\n- Verify `apiKey` has a value in the environment\n- Confirm the request header uses `x-api-key: {{apiKey}}`\n- Make sure the environment is selected in the top-right dropdown\n\n**Important:** Click **Share/Persist All** after the script populates the value.",
           "points": 10,
           "validatorId": "validate-apikey-saved"
         },
@@ -71,7 +71,7 @@
           "id": "step-7-mission-dashboard",
           "stepNumber": 3,
           "title": "Build Mission Dashboard",
-          "description": "Open **GET /mission** and use Postman's Agent Mode to create a card-style visualization. Prompt: *\"Create a card-style visualisation by rendering the SVG as HTML rather than an image. Keep all the fields in the card. Make it like a mission dashboard.\"*",
+          "description": "1. Stay on **Get Mission Overview** (`GET /mission`)\n2. Open Agent Mode and drag the request into the chat\n3. Enter this prompt:\n\n> Create a card-style visualisation by rendering the SVG as HTML rather than an image. Keep all the fields in the card. Make it like a mission dashboard.\n\n4. Send the request again\n5. In the response panel, click the **Visualize** tab to see your dashboard\n\n**Tip:** Results vary since LLM outputs differ. Tell Agent Mode what to fix — e.g. *\"Make the sigil bigger\"* or *\"Add a progress percentage.\"*",
           "points": 10,
           "validatorId": "validate-mission-response"
         },
@@ -79,7 +79,7 @@
           "id": "step-8-create-logs",
           "stepNumber": 4,
           "title": "Mission Log Blitz",
-          "description": "Create 3 mission logs using **POST /logs**: (1) Pre-flight navigation check (phase: pre-launch, category: navigation, crew: wiseman), (2) CO2 scrubber maintenance (phase: launch, category: life-support, crew: koch), (3) Deep Space Network handoff (phase: transit, category: communication, crew: glover).",
+          "description": "Create 3 mission logs using **POST /logs** (in the Logs folder → **Create Mission Log**). Each log needs `title`, `description`, `phase`, `category`, and `crew_member`.\n\n**Log 1/3 — Navigation Check:**\n```json\n{\n  \"title\": \"Pre-flight navigation check complete\",\n  \"description\": \"All star trackers aligned and verified for lunar transit\",\n  \"phase\": \"pre-launch\",\n  \"category\": \"navigation\",\n  \"crew_member\": \"wiseman\"\n}\n```\nExpect `201 Created` — note the `log.id` in the response for later.\n\n**Log 2/3 — Life Support:**\n```json\n{\n  \"title\": \"CO2 scrubber maintenance\",\n  \"description\": \"Replaced CO2 scrubber filter cartridge B. Cabin pressure nominal at 14.7 psi.\",\n  \"phase\": \"launch\",\n  \"category\": \"life-support\",\n  \"crew_member\": \"koch\"\n}\n```\n\n**Log 3/3 — Deep Space Comms:**\n```json\n{\n  \"title\": \"Deep Space Network handoff test\",\n  \"description\": \"Successfully switched primary comms from TDRS to DSN Madrid station. Signal strength 4.2 dBW.\",\n  \"phase\": \"transit\",\n  \"category\": \"communication\",\n  \"crew_member\": \"glover\"\n}\n```\n\n**Category diversity drives mission progression** — you need logs across multiple categories to reach 100%.\n\n| Field | Allowed Values |\n|-------|----------------|\n| phase | pre-launch, launch, transit, lunar-approach, orbit |\n| category | navigation, life-support, communication, science, anomaly, crew-status |\n| crew_member | wiseman, glover, koch, hansen |\n\n**Note:** Logs with category `anomaly` cannot be deleted — only updated. Anomalies are permanent mission records.\n\nFull examples: [artemis.up.railway.app/guide/logs](https://artemis.up.railway.app/guide/logs)",
           "points": 10,
           "validatorId": "validate-mission-logs"
         }
@@ -95,7 +95,7 @@
           "id": "step-9-update-log",
           "stepNumber": 1,
           "title": "Update a Mission Log",
-          "description": "Send **GET /logs** to see all entries. Pick a log ID and send **PATCH /logs/:id** to update it. For example, update the title to add \"VERIFIED BY FLIGHT DIRECTOR\".",
+          "description": "1. Send **GET /logs** to see all your entries\n2. Pick a log ID (or use Log 1's ID from the previous step)\n3. Open **Update Mission Log** (`PATCH /logs/:id`)\n4. Replace `:id` in the URL with the actual log ID\n5. Set the body:\n\n```json\n{\n  \"title\": \"Pre-flight navigation check complete — VERIFIED BY FLIGHT DIRECTOR\",\n  \"description\": \"All star trackers aligned. Secondary backup nav confirmed. Ready for TLI burn.\"\n}\n```\n\n6. Send — expect `200 OK`",
           "points": 10,
           "validatorId": "validate-log-updated"
         },
@@ -103,7 +103,7 @@
           "id": "step-10-delete-log",
           "stepNumber": 2,
           "title": "Delete a Mission Log",
-          "description": "Send **DELETE /logs/:id** to remove a log (expect 200 OK). Note: logs with category `anomaly` cannot be deleted.",
+          "description": "1. Identify a log ID from your previous `GET /logs` response\n2. Open **Delete Mission Log** (`DELETE /logs/:id`)\n3. Replace `:id` with the actual log ID\n4. Send — expect `200 OK`\n\n**Caution:** Logs with category `anomaly` cannot be deleted — only updated. Choose a non-anomaly log.",
           "points": 10,
           "validatorId": "validate-log-deleted"
         },
@@ -111,7 +111,7 @@
           "id": "step-11-mission-briefing",
           "stepNumber": 3,
           "title": "Request Mission Briefing",
-          "description": "Send **POST /mission/brief** with an empty body `{}`. You'll receive a briefing summarizing your mission status.",
+          "description": "1. Open **POST /mission/brief**\n2. Set the body to `{}`\n3. Send — you'll receive a briefing summarizing your mission status, log counts by category, and recommendations for completing your mission",
           "points": 10,
           "validatorId": "validate-mission-briefing"
         },
@@ -119,7 +119,7 @@
           "id": "step-12-verify-splashdown",
           "stepNumber": 4,
           "title": "Verify Splashdown",
-          "description": "Send **GET /mission** and verify that `completion_percentage` is 100 and all steps show `completed: true`.",
+          "description": "1. Open **GET /mission** and send\n2. Check for `completion_percentage: 100` and all steps showing `completed: true`\n\n**If you see 100%** — congratulations, you've achieved splashdown!\n\n**If not 100%**, check which step is incomplete in the response. You likely need more logs across different categories. Run `POST /mission/brief` to see recommendations — the briefing tells you exactly what's missing.\n\n| # | Requirement | Request |\n|---|---|---|\n| 1 | 3+ logs created | POST /logs |\n| 2 | Update at least one log | PATCH /logs/:id |\n| 3 | Delete a log | DELETE /logs/:id |\n| 4 | Get a mission briefing | POST /mission/brief |\n| 5 | Verify splashdown | GET /mission |",
           "points": 10,
           "validatorId": "validate-splashdown"
         }
@@ -135,7 +135,7 @@
           "id": "step-13-generate-test-suite",
           "stepNumber": 1,
           "title": "Generate Integration Test Suite",
-          "description": "Use Postman Agent Mode to generate a new collection for end-to-end integration testing. The flow should cover: register, briefing, mission overview, create 3 logs, update one, delete one, final briefing, and verify completion. Create an 'artemis.test' environment with baseUrl set to `https://artemis.up.railway.app`.",
+          "description": "1. Start a **new chat** in Agent Mode\n2. Drag and drop your **collection** into the chat\n3. Paste this prompt:\n\n> Generate a new collection to do an end-to-end integration test\n>\n> - Refer to example responses for data to be sent in the body.\n> - Refer to the collection attached for the request type and add scripts to chain data between the requests.\n> - Create an environment \"artemis.test\" (baseUrl: https://artemis.up.railway.app)\n>\n> Flow:\n> 1. Register crew member (POST /register) — save api_key & callsign\n> 2. Generate Mission Briefing (POST /mission/brief) with phase: transit\n> 3. Get Mission Overview (GET /mission)\n> 4. Create 3 mission logs (POST /logs) — save each log ID (path is response.log.id)\n>    Crew: wiseman, glover, koch, hansen\n>    Category: navigation, life-support, communication, science, crew-status, anomaly\n> 5. Update one log (PATCH /logs/{logId1}) — category to science\n> 6. Delete communication log (DELETE /logs/{logId2})\n> 7. Generate final briefing (POST /mission/brief) with empty body\n> 8. Verify mission completion (GET /mission) — all steps completed: true\n>\n> Do not write tests yet — we will add them subsequently.\n\n4. Run the generated collection using **Collection Runner** — verify all requests show green checkmarks",
           "points": 10,
           "validatorId": "validate-test-collection"
         },
@@ -143,7 +143,7 @@
           "id": "step-14-run-tests",
           "stepNumber": 2,
           "title": "Run and Verify Tests",
-          "description": "Run the integration test collection using Postman's Collection Runner. Verify all requests return green checkmarks. Then use Agent Mode to add integration tests based on the responses.",
+          "description": "1. In the same Agent Mode chat, enter:\n\n> Run the collection using the collection runner and add integration tests based on the responses.\n\n2. Wait for Agent Mode to add tests to each request\n3. Open **Collection Runner** and run the test collection again\n4. Verify all requests pass with green checkmarks AND all tests pass\n\n**Debugging tip:** If tests fail, paste the error into Agent Mode:\n\n> This test is failing with [error]. Debug it.",
           "points": 10,
           "validatorId": "validate-test-environment"
         }

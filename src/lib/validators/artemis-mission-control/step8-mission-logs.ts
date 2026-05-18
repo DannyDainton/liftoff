@@ -4,6 +4,8 @@ import { resolveArtemisEnvironment } from "./resolve-environment";
 
 const ARTEMIS_API = "https://artemis.up.railway.app";
 
+const REQUIRED_CATEGORIES = ["navigation", "life-support", "communication"];
+
 export const validateMissionLogs: ValidatorFn = async (apiKey, context) => {
   const envResult = await resolveArtemisEnvironment(apiKey, context);
   if ("success" in envResult) return envResult;
@@ -25,19 +27,30 @@ export const validateMissionLogs: ValidatorFn = async (apiKey, context) => {
     }
 
     const data = await res.json();
-    const logs = data.logs || data || [];
+    const logs: { category?: string }[] = data.logs || [];
 
-    if (!Array.isArray(logs) || logs.length < 3) {
+    if (logs.length < 3) {
       return {
         success: false,
-        message: `Found ${Array.isArray(logs) ? logs.length : 0} logs — you need at least 3. Create logs using POST /logs.`,
+        message: `Found ${logs.length} log(s) — you need at least 3. Create logs using POST /logs.`,
+        pointsAwarded: 0,
+      };
+    }
+
+    const categories = new Set(logs.map((l) => l.category?.toLowerCase()));
+    const missing = REQUIRED_CATEGORIES.filter((c) => !categories.has(c));
+
+    if (missing.length > 0) {
+      return {
+        success: false,
+        message: `Found ${logs.length} logs but missing required categories: ${missing.join(", ")}. Create logs covering navigation, life-support, and communication to advance the mission.`,
         pointsAwarded: 0,
       };
     }
 
     return {
       success: true,
-      message: `Found ${logs.length} mission logs — nice work!`,
+      message: `Found ${logs.length} mission logs across ${categories.size} categories — nice work!`,
       pointsAwarded: 10,
       context,
     };
