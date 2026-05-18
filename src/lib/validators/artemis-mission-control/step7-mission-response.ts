@@ -1,6 +1,6 @@
 import { ValidatorFn } from "@/types/validation";
-import { getEnvironment } from "@/lib/postman-api";
 import { resolveEnvVar } from "@/lib/validators/env-helpers";
+import { resolveArtemisEnvironment } from "./resolve-environment";
 
 const ARTEMIS_API = "https://artemis.up.railway.app";
 
@@ -8,19 +8,11 @@ export const validateMissionResponse: ValidatorFn = async (
   apiKey,
   context
 ) => {
-  if (!context.environmentId) {
-    return {
-      success: false,
-      message: "Please complete the environment steps first.",
-      pointsAwarded: 0,
-    };
-  }
-
-  const envDetail = await getEnvironment(apiKey, context.environmentId);
-  const values = envDetail.values || [];
+  const envResult = await resolveArtemisEnvironment(apiKey, context);
+  if ("success" in envResult) return envResult;
 
   const apiKeyValue = resolveEnvVar(
-    values,
+    envResult.values,
     "apiKey",
     "No `apiKey` found in your environment. Complete registration first."
   );

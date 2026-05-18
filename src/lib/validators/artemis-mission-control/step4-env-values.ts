@@ -1,21 +1,14 @@
 import { ValidatorFn } from "@/types/validation";
-import { getEnvironment } from "@/lib/postman-api";
 import { resolveEnvVar } from "@/lib/validators/env-helpers";
+import { resolveArtemisEnvironment } from "./resolve-environment";
 
 export const validateEnvironmentValues: ValidatorFn = async (
   apiKey,
   context
 ) => {
-  if (!context.environmentId) {
-    return {
-      success: false,
-      message: "Please complete Step 3 first (create the environment).",
-      pointsAwarded: 0,
-    };
-  }
-
-  const envDetail = await getEnvironment(apiKey, context.environmentId);
-  const values = envDetail.values || [];
+  const envResult = await resolveArtemisEnvironment(apiKey, context);
+  if ("success" in envResult) return envResult;
+  const values = envResult.values;
 
   const baseUrlValue = resolveEnvVar(values, "baseUrl");
   if (typeof baseUrlValue !== "string") return baseUrlValue;

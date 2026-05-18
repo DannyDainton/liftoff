@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { ProgressProvider } from "@/context/ProgressContext";
-import CelebrationOverlay from "@/components/scoring/CelebrationOverlay";
-import ImportProgressModal from "@/components/auth/ImportProgressModal";
-import DiscordCommunityModal from "@/components/auth/DiscordCommunityModal";
+import LearnerOverlays from "@/components/LearnerOverlays";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,9 +33,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           <ProgressProvider>
-            <CelebrationOverlay />
-            <ImportProgressModal />
-            <DiscordCommunityModal />
+            <LearnerOverlays />
             {children}
           </ProgressProvider>
         </AuthProvider>
