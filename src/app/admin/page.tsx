@@ -1081,7 +1081,7 @@ function Dashboard({ password }: { password: string }) {
 
 function TopLearnersChart({ users }: { users: LeaderboardUser[] }) {
   const chartData = [...users]
-    .sort((a, b) => a.totalPoints - b.totalPoints)
+    .sort((a, b) => b.totalPoints - a.totalPoints)
     .map((u) => ({
       name:
         u.displayName.length > 14
@@ -1133,11 +1133,11 @@ function TopLearnersChart({ users }: { users: LeaderboardUser[] }) {
                 <Cell
                   key={i}
                   fill={
-                    i === chartData.length - 1
+                    i === 0
                       ? "#FF6C37"
-                      : i === chartData.length - 2
+                      : i === 1
                         ? "#EC4899"
-                        : i === chartData.length - 3
+                        : i === 2
                           ? "#8B5CF6"
                           : "rgba(139, 92, 246, 0.4)"
                   }
