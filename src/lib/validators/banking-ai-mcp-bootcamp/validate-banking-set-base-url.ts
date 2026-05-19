@@ -32,10 +32,10 @@ export const validateBankingSetBaseUrl: ValidatorFn = async (apiKey, context) =>
   );
   if (typeof effectiveValue !== "string") return effectiveValue;
 
-  if (effectiveValue !== "https://ai-powered-bootcamp-production.up.railway.app") {
+  if (effectiveValue !== "https://template.postman-echo.com") {
     return {
       success: false,
-      message: `Variable "baseUrl" found but its value is "${effectiveValue}". Expected "https://ai-powered-bootcamp-production.up.railway.app".`,
+      message: `Variable "baseUrl" found but its value is "${effectiveValue}". Expected "https://template.postman-echo.com".`,
       pointsAwarded: 0,
     };
   }

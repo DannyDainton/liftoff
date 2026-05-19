@@ -52,13 +52,13 @@ Use **Agent Mode** to replace all hardcoded localhost URLs with a reusable colle
 
 Set the collection as context and send this prompt:
 
-> **Agent Mode Prompt:** `For all the requests in this collection, add https://ai-powered-bootcamp-production.up.railway.app as a environment variable called baseUrl and update all the URLs in the collection to use {{baseUrl}}.`
+> **Agent Mode Prompt:** `For all the requests in this collection, add https://template.postman-echo.com as an environment variable called baseUrl and update all the URLs in the collection to use {{baseUrl}}.`
 
 Verify that the `baseUrl` variable has been automatically populated in the **Variables** tab.
 
 **Important:** After setting values, click the **Share** button (or **Persist All**) in the environment editor to sync your values to the cloud. LiftOff validates via the Postman API, which can only see shared/initial values — not local current values.
 
-**Validation:** The environment "Banking.local" contains a variable named "baseUrl" with the value "https://ai-powered-bootcamp-production.up.railway.app".
+**Validation:** The environment "Banking.local" contains a variable named "baseUrl" with the value "https://template.postman-echo.com".
 
 ### Step 3: Generate and Set the API Key
 
