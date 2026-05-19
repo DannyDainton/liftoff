@@ -134,7 +134,7 @@ function AdminLogin({ onAuth }: { onAuth: (pw: string) => void }) {
       setError("Invalid password");
     }
     setLoading(false);
-  }
+  } 
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
