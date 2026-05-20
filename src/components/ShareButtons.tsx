@@ -20,15 +20,29 @@ function LinkedInIcon({ size = 18 }: { size?: number }) {
 
 interface ShareButtonsProps {
   text: string;
+  shareType?: "module" | "rank" | "results";
+  shareId?: string;
+  points?: number;
   variant?: "inline" | "stacked";
 }
 
-export default function ShareButtons({ text, variant = "inline" }: ShareButtonsProps) {
+export default function ShareButtons({
+  text,
+  shareType = "results",
+  shareId,
+  points,
+  variant = "inline",
+}: ShareButtonsProps) {
+  const shareParams = new URLSearchParams({ type: shareType });
+  if (shareId) shareParams.set("id", shareId);
+  if (points !== undefined) shareParams.set("points", String(points));
+  const shareUrl = `${APP_URL}/share?${shareParams.toString()}`;
+
   const encodedText = encodeURIComponent(text);
-  const encodedUrl = encodeURIComponent(APP_URL);
+  const encodedUrl = encodeURIComponent(shareUrl);
 
   const twitterUrl = `https://x.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
-  const linkedinText = encodeURIComponent(`${text}\n\n${APP_URL}`);
+  const linkedinText = encodeURIComponent(`${text}\n\n${shareUrl}`);
   const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${linkedinText}`;
 
   const buttonBase =

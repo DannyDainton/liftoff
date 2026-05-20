@@ -3,12 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useProgress } from "@/context/ProgressContext";
 
 export default function SettingsPage() {
   const { profile, isAuthenticated, setAuth, clearApiKey } = useAuth();
+  const { points, resetProgress } = useProgress();
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   async function handleConnect(e: React.FormEvent) {
     e.preventDefault();
@@ -129,7 +132,62 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
+
+        <div className="glass-card p-8 mt-6">
+          <h2 className="text-xl font-bold text-white mb-1">Reset All Progress</h2>
+          <p className="text-sm text-[var(--text-secondary)] mb-6">
+            This will permanently erase all your completed steps, points, and earned
+            ranks across every module. This action cannot be undone.
+          </p>
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            disabled={points === 0}
+            className="px-4 py-2 rounded-xl text-sm font-medium text-red-400 bg-red-500/8 hover:bg-red-500/15 border border-red-500/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            Reset all progress
+          </button>
+        </div>
       </main>
+
+      {showResetConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          onClick={() => setShowResetConfirm(false)}
+        >
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div
+            className="relative glass-card p-8 max-w-sm mx-4 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-4xl mb-4">⚠️</div>
+            <h3 className="text-lg font-bold text-white mb-2">Are you sure?</h3>
+            <p className="text-sm text-[var(--text-secondary)] mb-2">
+              You currently have <span className="text-white font-bold">{points} points</span>.
+              Resetting will erase all progress across every module.
+            </p>
+            <p className="text-xs text-[var(--pink)] mb-6">
+              This cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="px-5 py-2 rounded-xl text-sm font-medium text-[var(--text-secondary)] bg-white/5 hover:bg-white/10 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  resetProgress();
+                  setShowResetConfirm(false);
+                }}
+                className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-red-500/80 hover:bg-red-500 transition-colors"
+              >
+                Reset everything
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

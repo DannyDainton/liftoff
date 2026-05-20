@@ -28,6 +28,7 @@ function markCelebrated(type: "ranks" | "modules", id: string) {
 
 interface Celebration {
   type: "rank-up" | "module-complete";
+  id: string;
   title: string;
   subtitle: string;
   badge: string;
@@ -77,6 +78,7 @@ export default function CelebrationOverlay() {
       markCelebrated("ranks", currentRank.id);
       setCelebration({
         type: "rank-up",
+        id: currentRank.id,
         title: "Rank Up!",
         subtitle: `You reached ${currentRank.title}`,
         badge: currentRank.badge,
@@ -100,6 +102,7 @@ export default function CelebrationOverlay() {
         markCelebrated("modules", mod.id);
         setCelebration({
           type: "module-complete",
+          id: mod.id,
           title: "Module Complete!",
           subtitle: `You finished ${mod.title}`,
           badge: mod.icon,
@@ -173,6 +176,9 @@ export default function CelebrationOverlay() {
                 ? `I just completed the ${celebration.subtitle.replace("You finished ", "")} module on LiftOff by @getpostman!`
                 : `I just reached ${celebration.subtitle.replace("You reached ", "")} rank on LiftOff by @getpostman!`
             }
+            shareType={celebration.type === "module-complete" ? "module" : "rank"}
+            shareId={celebration.id}
+            points={points}
           />
         </div>
         <button

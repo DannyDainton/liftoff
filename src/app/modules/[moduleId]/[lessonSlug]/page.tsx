@@ -17,7 +17,7 @@ export default function LessonPage() {
   const slug = params.lessonSlug as string;
   const mod = getModule(params.moduleId as string);
   const lesson = getLesson(slug, mod.id);
-  const { isStepCompleted, resetProgress } = useProgress();
+  const { isStepCompleted } = useProgress();
   const prevModuleCompleteRef = useRef<boolean | null>(null);
 
   const allModuleSteps = mod.lessons.flatMap((l) => l.steps);
@@ -80,15 +80,7 @@ export default function LessonPage() {
                 </h1>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <PointsDisplay />
-              <button
-                onClick={resetProgress}
-                className="px-3 py-1.5 rounded-lg text-xs text-[var(--text-tertiary)] border border-white/10 hover:bg-white/5 transition-colors"
-              >
-                Reset
-              </button>
-            </div>
+            <PointsDisplay />
           </div>
         </nav>
 
