@@ -42,7 +42,8 @@ export function CopyableBlockquote({
   children,
   ...props
 }: { children?: ReactNode } & React.HTMLAttributes<HTMLQuoteElement>) {
-  const text = extractText(children);
+  const raw = extractText(children);
+  const text = raw.replace(/^\s*(?:Agent Mode Prompt|Claude Prompt|Prompt):\s*/i, "");
 
   return (
     <div className="relative group">
