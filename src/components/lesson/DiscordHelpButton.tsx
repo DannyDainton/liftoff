@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 const DISCORD_INVITE = "https://discord.gg/XJbdvQJQqU";
 const DISCORD_CHANNEL = "https://discord.com/channels/831210428314157076/1506690554363121775";
@@ -41,7 +42,7 @@ export default function DiscordHelpButton({
     navigator.clipboard.writeText(lines.join("\n"));
 
     setToast(true);
-    setTimeout(() => setToast(false), 8000);
+    setTimeout(() => setToast(false), 12000);
 
     setTimeout(() => {
       if (hasJoined) {
@@ -65,13 +66,14 @@ export default function DiscordHelpButton({
         </svg>
         Ask for help
       </button>
-      {toast && (
+      {toast && createPortal(
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl bg-[#5865F2] text-white text-sm font-medium whitespace-nowrap animate-fade-up shadow-xl flex items-center gap-2">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
           Step info copied — paste in #liftoff-feedback
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
