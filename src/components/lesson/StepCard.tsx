@@ -19,6 +19,7 @@ interface StepCardProps {
 
 export default function StepCard({ step, moduleTitle, moduleColor = "#FF6C37" }: StepCardProps) {
   const [stepUrl, setStepUrl] = useState("");
+  const [lastError, setLastError] = useState("");
   useEffect(() => {
     setStepUrl(`${window.location.origin}${window.location.pathname}#${step.id}`);
   }, [step.id]);
@@ -51,7 +52,13 @@ export default function StepCard({ step, moduleTitle, moduleColor = "#FF6C37" }:
             <h3 className="text-base font-bold text-white">
               {step.title}
             </h3>
-            <DiscordHelpButton stepId={step.id} stepTitle={step.title} moduleTitle={moduleTitle} stepUrl={stepUrl} />
+            <DiscordHelpButton
+              stepId={step.id}
+              stepTitle={step.title}
+              moduleTitle={moduleTitle}
+              stepUrl={stepUrl}
+              errorMessage={lastError}
+            />
           </div>
           <div className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed prose prose-invert prose-sm max-w-none prose-p:my-2 prose-strong:text-white prose-code:text-[var(--orange)] prose-code:bg-white/5 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:font-mono prose-a:text-[var(--orange)] prose-a:no-underline hover:prose-a:underline prose-pre:overflow-x-auto prose-pre:max-w-full">
             <ReactMarkdown
@@ -67,6 +74,7 @@ export default function StepCard({ step, moduleTitle, moduleColor = "#FF6C37" }:
             validatorId={step.validatorId}
             points={step.points}
             moduleColor={moduleColor}
+            onError={setLastError}
           />
         </div>
       </div>

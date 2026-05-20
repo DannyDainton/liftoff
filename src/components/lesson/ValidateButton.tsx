@@ -12,6 +12,7 @@ interface ValidateButtonProps {
   validatorId: string;
   points: number;
   moduleColor?: string;
+  onError?: (message: string) => void;
 }
 
 export default function ValidateButton({
@@ -19,6 +20,7 @@ export default function ValidateButton({
   validatorId,
   points,
   moduleColor = "#FF6C37",
+  onError,
 }: ValidateButtonProps) {
   const { apiKey, isAuthenticated } = useAuth();
   const { isStepCompleted, completeStep, validationContext } = useProgress();
@@ -47,12 +49,17 @@ export default function ValidateButton({
       setResult(data);
 
       if (data.success) {
+        onError?.("");
         completeStep(stepId, points, data.context);
+      } else {
+        onError?.(data.message);
       }
     } catch {
+      const msg = "Failed to validate. Please try again.";
+      onError?.(msg);
       setResult({
         success: false,
-        message: "Failed to validate. Please try again.",
+        message: msg,
         pointsAwarded: 0,
       });
     } finally {

@@ -12,6 +12,7 @@ interface DiscordHelpButtonProps {
   stepTitle: string;
   moduleTitle: string;
   stepUrl?: string;
+  errorMessage?: string;
 }
 
 export default function DiscordHelpButton({
@@ -19,6 +20,7 @@ export default function DiscordHelpButton({
   stepTitle,
   moduleTitle,
   stepUrl,
+  errorMessage,
 }: DiscordHelpButtonProps) {
   const [toast, setToast] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
@@ -34,10 +36,11 @@ export default function DiscordHelpButton({
       `**Step:** ${stepTitle}`,
       `**Step ID:** \`${stepId}\``,
       `**Link:** ${url}`,
-      "",
-      "**What I need help with:**",
-      "_(describe your issue here)_",
     ];
+    if (errorMessage) {
+      lines.push(`**Error:** ${errorMessage}`);
+    }
+    lines.push("", "**What I need help with:**", "_(describe your issue here)_");
 
     navigator.clipboard.writeText(lines.join("\n"));
 

@@ -10,6 +10,7 @@ import PostmanConnectionBar from "@/components/auth/PostmanConnectionBar";
 import PointsDisplay from "@/components/scoring/PointsDisplay";
 import ModuleBadge from "@/components/scoring/ModuleBadge";
 import ShareDebug from "@/components/ShareDebug";
+import ShareButtons from "@/components/ShareButtons";
 
 export default function ModuleOverviewPage() {
   const params = useParams();
@@ -116,9 +117,14 @@ export default function ModuleOverviewPage() {
               <h2 className="text-2xl font-bold gradient-text-rainbow mb-2">
                 Module Complete!
               </h2>
-              <p className="text-[var(--text-secondary)]">
+              <p className="text-[var(--text-secondary)] mb-5">
                 You earned the {mod.title} badge.
               </p>
+              <ShareButtons
+                text={`I just completed the ${mod.title} module on LiftOff by @getpostman!`}
+                shareType="module"
+                shareId={mod.id}
+              />
             </div>
           )}
 

@@ -2,7 +2,7 @@ const BASE_URL = "https://api.getpostman.com";
 
 async function postmanFetch(path: string, apiKey: string) {
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "x-api-key": apiKey },
+    headers: { "x-api-key": apiKey, "User-Agent": "LiftOff/1.0 (quickstarts.postman.com)" },
   });
   if (!res.ok) {
     throw new Error(`Postman API ${path} returned ${res.status}`);
