@@ -52,6 +52,7 @@ export default function StepCard({ step, moduleColor = "#FF6C37" }: StepCardProp
           </div>
           <ValidateButton
             stepId={step.id}
+            stepTitle={step.title}
             validatorId={step.validatorId}
             points={step.points}
             moduleColor={moduleColor}
