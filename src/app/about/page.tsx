@@ -24,46 +24,18 @@ export default function AboutPage() {
             Learn by doing, not just reading
           </h2>
           <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
-            LiftOff is built on a simple premise: you learn APIs best by working with them, not by
-            watching someone else do it. Research consistently shows that active, hands-on learning
-            produces deeper understanding and better retention than passive instruction.
+            LiftOff is built on a simple idea: you learn APIs best by working with them.
+            Reading docs is useful, but actually building something is what makes it stick.{" "}
+            <a
+              href="https://www.pnas.org/doi/10.1073/pnas.1319030111"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--orange)] hover:underline"
+            >
+              The research backs this up
+            </a>
+            .
           </p>
-          <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
-            A landmark study published in <em>Proceedings of the National Academy of Sciences</em> found
-            that students in traditional lecture courses were 1.5 times more likely to fail than those
-            in active learning environments. The effect held across STEM disciplines and class sizes.
-          </p>
-          <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
-            A separate study published in <em>Science</em> by Deslauriers, Schelew, and Wieman found that
-            replacing traditional lectures with active, hands-on techniques led to dramatically higher
-            engagement and measurably better test performance in a controlled university setting.
-          </p>
-          <div className="space-y-2">
-            <p className="text-sm text-[var(--text-tertiary)] leading-relaxed">
-              Freeman, S. et al. (2014).{" "}
-              <a
-                href="https://www.pnas.org/doi/10.1073/pnas.1319030111"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--orange)] hover:underline"
-              >
-                &ldquo;Active learning increases student performance in science, engineering, and mathematics&rdquo;
-              </a>
-              . <em>PNAS</em>, 111(23), 8410–8415.
-            </p>
-            <p className="text-sm text-[var(--text-tertiary)] leading-relaxed">
-              Deslauriers, L., Schelew, E., &amp; Wieman, C. (2011).{" "}
-              <a
-                href="https://www.science.org/doi/10.1126/science.1201783"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--orange)] hover:underline"
-              >
-                &ldquo;Improved Learning in a Large-Enrollment Physics Class&rdquo;
-              </a>
-              . <em>Science</em>, 332(6031), 862–864.
-            </p>
-          </div>
         </section>
 
         <div className="section-divider" />
