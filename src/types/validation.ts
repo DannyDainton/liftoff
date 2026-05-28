@@ -15,6 +15,7 @@ export interface ValidationContext {
   bankingWorkspaceId?: string;
   bankingEnvironmentId?: string;
   bankingCollectionUid?: string;
+  reusableRequestsWorkspaceId?: string;
 }
 
 export interface ValidationResult {

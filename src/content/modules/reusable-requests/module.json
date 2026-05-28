@@ -1,0 +1,108 @@
+{
+  "id": "reusable-requests",
+  "title": "Reusable Requests in Postman",
+  "description": "Stop copying and pasting the same request across collections. Learn how to define a request once and reference it anywhere — both visually with linked copies and programmatically with pm.execution.runRequest() — turning your collections from isolated request lists into a connected, maintainable API toolkit.",
+  "color": "#10B981",
+  "icon": "🔗",
+  "lessons": [
+    {
+      "id": "lesson-1-set-up-your-workspace",
+      "slug": "set-up-your-workspace",
+      "title": "Set Up Your Workspace",
+      "partNumber": 1,
+      "steps": [
+        {
+          "id": "reusable-requests-step-1-create-workspace",
+          "stepNumber": 1,
+          "title": "Create a Workspace",
+          "description": "1. Open Postman and click **Workspaces** in the top nav, then **Create Workspace**.\n2. Choose **Blank workspace**.\n3. Name it: **Reusable Requests - [your name]** (for example, *Reusable Requests - Alex*).\n4. Set visibility to **Personal** and click **Create**.\n\nThis workspace will hold your source collection and the collections that reuse its requests.",
+          "points": 10,
+          "validatorId": "validate-reusable-requests-create-workspace"
+        },
+        {
+          "id": "reusable-requests-step-2-create-source-collection",
+          "stepNumber": 2,
+          "title": "Create the Source Collection and Request",
+          "description": "1. Inside your workspace, click **New** → **Collection**.\n2. Name the collection: **Core Requests**.\n3. Click **Add a request** and configure it as follows:\n   - Name: **Get Coffees**\n   - Method: **GET**\n   - URL: `https://api.sampleapis.com/coffee/hot`\n4. Click **Save**, then **Send** to verify you receive a `200 OK` response with an array of coffee objects.\n\nThis is the source of truth. Everything else in this module references this request rather than duplicating it.",
+          "points": 10,
+          "validatorId": "validate-reusable-requests-create-source-collection"
+        }
+      ]
+    },
+    {
+      "id": "lesson-2-reuse-requests-with-linked-copies",
+      "slug": "reuse-requests-with-linked-copies",
+      "title": "Reuse Requests with Linked Copies",
+      "partNumber": 2,
+      "steps": [
+        {
+          "id": "reusable-requests-step-1-create-regression-collection",
+          "stepNumber": 1,
+          "title": "Create a Regression Collection",
+          "description": "1. In your workspace, click **New** → **Collection**.\n2. Name it: **Regression Suite**.\n3. Optionally add a description like \"Linked copies of core requests for regression testing.\"\n\nIn the next step you'll add a linked copy of **Get Coffees** here, instead of duplicating it.",
+          "points": 10,
+          "validatorId": "validate-reusable-requests-create-regression-collection"
+        },
+        {
+          "id": "reusable-requests-step-2-paste-linked-copy",
+          "stepNumber": 2,
+          "title": "Paste a Linked Copy",
+          "description": "1. In the **Core Requests** collection, click the **⋯ View more actions** icon next to **Get Coffees**.\n2. Select **Copy**.\n3. In the **Regression Suite** collection, click the **⋯ View more actions** icon.\n4. Select **Paste** → **Paste linked copy**.\n5. The **Get Coffees** request should now appear inside **Regression Suite**.\n\n> **Alternative:** hold **⌘+Drag** (Mac) or **Ctrl+Drag** (Windows/Linux) to drag the request directly from Core Requests into Regression Suite to create a linked copy in place.",
+          "points": 10,
+          "validatorId": "validate-reusable-requests-paste-linked-copy"
+        },
+        {
+          "id": "reusable-requests-step-3-inspect-workbench-card",
+          "stepNumber": 3,
+          "title": "Inspect the Workbench Card",
+          "description": "1. Open the linked **Get Coffees** request inside **Regression Suite**.\n2. Locate the **workbench card** next to the request name — it shows the source request and any other linked copies.\n3. Open the original **Get Coffees** in **Core Requests** and confirm its workbench card shows the total count of linked copies.\n\n> **Note:** Linked copies stay in sync with their source by design. On a Postman Enterprise plan, you can override the name, query parameters, body, and scripts on the linked copy without losing the link — and reset overrides from the workbench card if you want to go back to the source's defaults.",
+          "points": 10,
+          "validatorId": "validate-reusable-requests-inspect-workbench-card",
+          "manual": true
+        }
+      ]
+    },
+    {
+      "id": "lesson-3-reuse-requests-in-scripts-with-runrequest",
+      "slug": "reuse-requests-in-scripts-with-runrequest",
+      "title": "Reuse Requests in Scripts with runRequest",
+      "partNumber": 3,
+      "steps": [
+        {
+          "id": "reusable-requests-step-1-add-token-request",
+          "stepNumber": 1,
+          "title": "Add a Token-Fetching Request",
+          "description": "1. In the **Core Requests** collection, click **Add a request**.\n2. Configure the request:\n   - Name: **Get Auth Token**\n   - Method: **GET**\n   - URL: `https://postman-echo.com/get?token=demo-token-123`\n3. Click **Save**, then **Send** and confirm a `200 OK` response. The response body should include `\"token\": \"demo-token-123\"` inside the `args` object.\n\nThis stands in as a reusable auth request you'll invoke from another request's script.",
+          "points": 10,
+          "validatorId": "validate-reusable-requests-add-token-request"
+        },
+        {
+          "id": "reusable-requests-step-2-copy-request-id",
+          "stepNumber": 2,
+          "title": "Copy the Request ID",
+          "description": "1. Open **Get Auth Token**.\n2. In the right sidebar, click the **ⓘ Info** icon.\n3. Click **Copy request ID** and paste it somewhere temporary — you'll need it in the next step.\n\n> **Heads up:** Postman doesn't preserve request IDs when you export a collection. If you import a collection that uses `runRequest`, you'll need to update the IDs.",
+          "points": 10,
+          "validatorId": "validate-reusable-requests-copy-request-id",
+          "manual": true
+        },
+        {
+          "id": "reusable-requests-step-3-call-run-request",
+          "stepNumber": 3,
+          "title": "Call runRequest From a Post-Response Script",
+          "description": "1. Open the **Get Coffees** request in **Core Requests**.\n2. Click the **Scripts** tab, then select **Post-response**.\n3. Add the following script, replacing `YOUR_REQUEST_ID` with the ID you copied in Step 2:\n\n```javascript\ntry {\n    const response = await pm.execution.runRequest(\"YOUR_REQUEST_ID\");\n    const body = response.json();\n    const token = body.args.token;\n\n    pm.environment.set(\"authToken\", token);\n    console.log(\"Token captured:\", token);\n} catch (error) {\n    console.error(\"Failed to run referenced request:\", error);\n}\n```\n\n4. Click **Save**.\n5. Make sure you have an active environment selected (top right). If you don't, create one called **Reusable Requests Env** and select it.\n6. Click **Send** on **Get Coffees**.\n7. Open the **Postman Console** (bottom left) and confirm you see `Token captured: demo-token-123`.\n8. Open your environment and confirm an `authToken` variable now holds `demo-token-123`.\n\n> **Things to know:** `pm.execution.runRequest()` is only supported in the Postman app and the Postman CLI — **not** in Newman or the VS Code extension. Also, `pm.execution.setNextRequest()` and `pm.visualizer` do not run inside the referenced request.",
+          "points": 10,
+          "validatorId": "validate-reusable-requests-call-run-request"
+        },
+        {
+          "id": "reusable-requests-step-4-override-variables",
+          "stepNumber": 4,
+          "title": "Override Variables at Runtime",
+          "description": "1. Edit the **Get Auth Token** request URL to use a variable: `https://postman-echo.com/get?token={{token}}`. Click **Save**.\n2. Back in **Get Coffees**, update the post-response script to pass an override:\n\n```javascript\ntry {\n    const response = await pm.execution.runRequest(\"YOUR_REQUEST_ID\", {\n        variables: {\n            token: \"override-token-456\"\n        }\n    });\n    const body = response.json();\n    console.log(\"Token used:\", body.args.token);\n} catch (error) {\n    console.error(\"Failed to run referenced request:\", error);\n}\n```\n\n3. Save and **Send** **Get Coffees** again.\n4. In the Postman Console, you should now see `Token used: override-token-456`, proving the override worked at runtime without touching the source request.\n\n> **Variable priority:** override values > local > data > environment > referenced request's collection > root request's collection > global.",
+          "points": 10,
+          "validatorId": "validate-reusable-requests-override-variables",
+          "manual": true
+        }
+      ]
+    }
+  ]
+}

@@ -32,6 +32,15 @@ import { validateBankingQueryMcp } from "./banking-ai-mcp-bootcamp/validate-bank
 import { validateBankingAddMcpClaude } from "./banking-ai-mcp-bootcamp/validate-banking-add-mcp-claude";
 import { validateBankingVerifyConnection } from "./banking-ai-mcp-bootcamp/validate-banking-verify-connection";
 import { validateBankingAddTestsMcp } from "./banking-ai-mcp-bootcamp/validate-banking-add-tests-mcp";
+import { validateReusableRequestsCreateWorkspace } from "./reusable-requests/validate-reusable-requests-create-workspace";
+import { validateReusableRequestsCreateSourceCollection } from "./reusable-requests/validate-reusable-requests-create-source-collection";
+import { validateReusableRequestsCreateRegressionCollection } from "./reusable-requests/validate-reusable-requests-create-regression-collection";
+import { validateReusableRequestsPasteLinkedCopy } from "./reusable-requests/validate-reusable-requests-paste-linked-copy";
+import { validateReusableRequestsInspectWorkbenchCard } from "./reusable-requests/validate-reusable-requests-inspect-workbench-card";
+import { validateReusableRequestsAddTokenRequest } from "./reusable-requests/validate-reusable-requests-add-token-request";
+import { validateReusableRequestsCopyRequestId } from "./reusable-requests/validate-reusable-requests-copy-request-id";
+import { validateReusableRequestsCallRunRequest } from "./reusable-requests/validate-reusable-requests-call-run-request";
+import { validateReusableRequestsOverrideVariables } from "./reusable-requests/validate-reusable-requests-override-variables";
 
 export const validatorRegistry: Record<string, ValidatorFn> = {
   "validate-workspace": validateWorkspace,
@@ -67,4 +76,13 @@ export const validatorRegistry: Record<string, ValidatorFn> = {
   "validate-banking-add-mcp-claude": validateBankingAddMcpClaude,
   "validate-banking-verify-connection": validateBankingVerifyConnection,
   "validate-banking-add-tests-mcp": validateBankingAddTestsMcp,
+  "validate-reusable-requests-create-workspace": validateReusableRequestsCreateWorkspace,
+  "validate-reusable-requests-create-source-collection": validateReusableRequestsCreateSourceCollection,
+  "validate-reusable-requests-create-regression-collection": validateReusableRequestsCreateRegressionCollection,
+  "validate-reusable-requests-paste-linked-copy": validateReusableRequestsPasteLinkedCopy,
+  "validate-reusable-requests-inspect-workbench-card": validateReusableRequestsInspectWorkbenchCard,
+  "validate-reusable-requests-add-token-request": validateReusableRequestsAddTokenRequest,
+  "validate-reusable-requests-copy-request-id": validateReusableRequestsCopyRequestId,
+  "validate-reusable-requests-call-run-request": validateReusableRequestsCallRunRequest,
+  "validate-reusable-requests-override-variables": validateReusableRequestsOverrideVariables,
 };

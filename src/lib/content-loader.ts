@@ -1,9 +1,10 @@
 import artemisModule from "@/content/modules/artemis-mission-control/module.json";
 import apiBasicsModule from "@/content/modules/api-basics/module.json";
 import bankingModule from "@/content/modules/banking-ai-mcp-bootcamp/module.json";
+import reusableRequestsModule from "@/content/modules/reusable-requests/module.json";
 import { Module, Lesson } from "@/types/module";
 
-const modules: Module[] = [artemisModule as Module, apiBasicsModule as Module, bankingModule as Module];
+const modules: Module[] = [artemisModule as Module, apiBasicsModule as Module, bankingModule as Module, reusableRequestsModule as Module];
 
 export function getAllModules(): Module[] {
   return modules;
