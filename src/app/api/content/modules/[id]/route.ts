@@ -19,6 +19,7 @@ export async function GET(
     title: module.title,
     description: module.description,
     icon: module.icon,
+    url: `${base}/modules/${module.id}`,
     badgeUrl: `${base}/api/modules/${module.id}/badge`,
     color: module.color,
     lessons: module.lessons.map((l) => ({

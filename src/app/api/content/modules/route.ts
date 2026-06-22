@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
       title: m.title,
       description: m.description,
       icon: m.icon,
+      url: `${base}/modules/${m.id}`,
       badgeUrl: `${base}/api/modules/${m.id}/badge`,
       color: m.color,
       lessonCount: m.lessons.length,

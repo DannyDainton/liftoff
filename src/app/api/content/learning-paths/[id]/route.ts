@@ -20,6 +20,7 @@ export async function GET(
     title: path.title,
     description: path.description,
     icon: path.icon,
+    url: `${base}/learning-paths/${path.id}`,
     badgeUrl: `${base}/api/learning-paths/${path.id}/badge`,
     color: path.color,
     modules: modules.map((m) => {
@@ -33,6 +34,7 @@ export async function GET(
         title: m.title,
         description: m.description,
         icon: m.icon,
+        url: `${base}/modules/${m.id}`,
         badgeUrl: `${base}/api/modules/${m.id}/badge`,
         color: m.color,
         lessonCount: m.lessons.length,
