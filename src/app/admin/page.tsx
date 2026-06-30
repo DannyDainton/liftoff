@@ -1003,13 +1003,21 @@ function UtmPanel({ data }: { data: UtmStats }) {
         <h3 className="text-sm font-mono uppercase tracking-widest text-[var(--text-tertiary)] mb-4">
           UTM Attribution
         </h3>
-        <p className="text-center text-[var(--text-tertiary)] py-8 text-sm">
-          No UTM attributions recorded yet. Share links with{" "}
-          <code className="text-[var(--orange)] bg-white/5 px-1.5 py-0.5 rounded">
-            ?utm_source=discord&amp;utm_medium=community&amp;utm_campaign=onboarding
-          </code>{" "}
-          to start tracking.
-        </p>
+        <div className="py-8 space-y-3 max-w-xl mx-auto">
+          <p className="text-center text-[var(--text-tertiary)] text-sm">
+            No UTM attributions recorded yet. Append any campaign values you like to a module or learning path URL — the values are free-form.
+          </p>
+          <p className="text-center text-xs text-[var(--text-tertiary)]">Example:</p>
+          <code className="block text-center text-[var(--orange)] bg-white/5 px-4 py-3 rounded-lg text-xs leading-relaxed">
+            /learning-paths/intro-to-postman<br />
+            ?utm_source=discord<br />
+            &amp;utm_medium=community<br />
+            &amp;utm_campaign=onboarding
+          </code>
+          <p className="text-center text-xs text-[var(--text-tertiary)]">
+            Change <span className="text-white">utm_campaign</span> to anything — <span className="text-[var(--text-secondary)]">onboarding</span>, <span className="text-[var(--text-secondary)]">postman-101-launch</span>, <span className="text-[var(--text-secondary)]">monthly-digest</span> — each becomes its own row here.
+          </p>
+        </div>
       </div>
     );
   }
