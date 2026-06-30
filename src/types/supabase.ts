@@ -79,6 +79,53 @@ export interface Database {
           },
         ];
       };
+      utm_attribution: {
+        Row: {
+          id: string;
+          user_id: string;
+          content_type: string;
+          content_id: string;
+          utm_source: string;
+          utm_medium: string | null;
+          utm_campaign: string | null;
+          utm_term: string | null;
+          utm_content: string | null;
+          first_seen_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          content_type: string;
+          content_id: string;
+          utm_source: string;
+          utm_medium?: string | null;
+          utm_campaign?: string | null;
+          utm_term?: string | null;
+          utm_content?: string | null;
+          first_seen_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          content_type?: string;
+          content_id?: string;
+          utm_source?: string;
+          utm_medium?: string | null;
+          utm_campaign?: string | null;
+          utm_term?: string | null;
+          utm_content?: string | null;
+          first_seen_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "utm_attribution_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       validation_contexts: {
         Row: {
           id: string;

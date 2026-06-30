@@ -7,6 +7,7 @@ import { useProgress } from "@/context/ProgressContext";
 import { getLearningPath, getModulesForLearningPath } from "@/lib/content-loader";
 import NavMenu from "@/components/NavMenu";
 import { Module } from "@/types/module";
+import { useUtmTracking } from "@/hooks/useUtmTracking";
 
 const BADGE_VERSION = "1";
 
@@ -96,6 +97,7 @@ export default function LearningPathPage({ params }: { params: Promise<{ pathId:
   const modules = getModulesForLearningPath(pathId);
   const { isStepCompleted } = useProgress();
   const [pathImgError, setPathImgError] = useState(false);
+  useUtmTracking("learning_path", pathId);
 
   const totalSteps = modules.reduce(
     (a, mod) => a + mod.lessons.reduce((b, l) => b + l.steps.length, 0),

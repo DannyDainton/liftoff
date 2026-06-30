@@ -11,6 +11,7 @@ import PointsDisplay from "@/components/scoring/PointsDisplay";
 import ModuleBadge from "@/components/scoring/ModuleBadge";
 import ShareDebug from "@/components/ShareDebug";
 import ShareButtons from "@/components/ShareButtons";
+import { useUtmTracking } from "@/hooks/useUtmTracking";
 
 export default function ModuleOverviewPage() {
   const params = useParams();
@@ -18,6 +19,7 @@ export default function ModuleOverviewPage() {
   const { isStepCompleted, resetModule } = useProgress();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [imgError, setImgError] = useState(false);
+  useUtmTracking("module", params.moduleId as string);
 
   const totalSteps = mod.lessons.reduce((a, l) => a + l.steps.length, 0);
   const completedTotal = mod.lessons.reduce(

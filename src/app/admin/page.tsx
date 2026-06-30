@@ -64,12 +64,42 @@ interface LeaderboardUser {
   joinedAt: string;
 }
 
+interface UtmCampaign {
+  source: string;
+  medium: string | null;
+  campaign: string | null;
+  contentType: string;
+  contentId: string;
+  contentTitle: string;
+  count: number;
+  firstSeen: string;
+}
+
+interface UtmAttribution {
+  userId: string;
+  contentType: string;
+  contentId: string;
+  contentTitle: string;
+  utmSource: string;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  firstSeenAt: string;
+}
+
+interface UtmStats {
+  totalAttributed: number;
+  bySource: { source: string; count: number }[];
+  campaigns: UtmCampaign[];
+  recentAttributions: UtmAttribution[];
+}
+
 interface DashboardData {
   stats: DashboardStats;
   activity: ActivityPoint[];
   moduleStats: ModuleStat[];
   rankDistribution: RankDist[];
   leaderboard: LeaderboardUser[];
+  utmStats: UtmStats;
 }
 
 interface UserDetailStep {
@@ -962,6 +992,157 @@ function UserDetailPanel({
   );
 }
 
+// ─── UTM Attribution Panel ───────────────────────────────
+
+function UtmPanel({ data }: { data: UtmStats }) {
+  const [view, setView] = useState<"campaigns" | "recent">("campaigns");
+
+  if (data.totalAttributed === 0) {
+    return (
+      <div className="glass-card p-6">
+        <h3 className="text-sm font-mono uppercase tracking-widest text-[var(--text-tertiary)] mb-4">
+          UTM Attribution
+        </h3>
+        <p className="text-center text-[var(--text-tertiary)] py-8 text-sm">
+          No UTM attributions recorded yet. Share links with{" "}
+          <code className="text-[var(--orange)] bg-white/5 px-1.5 py-0.5 rounded">
+            ?utm_source=discord&amp;utm_medium=community&amp;utm_campaign=onboarding
+          </code>{" "}
+          to start tracking.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="glass-card p-6">
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h3 className="text-sm font-mono uppercase tracking-widest text-[var(--text-tertiary)]">
+            UTM Attribution
+          </h3>
+          <p className="text-xs text-[var(--text-tertiary)] mt-1">
+            {data.totalAttributed} first-visit{data.totalAttributed !== 1 ? "s" : ""} attributed
+          </p>
+        </div>
+        <div className="flex items-center gap-1 bg-white/5 rounded-lg p-1">
+          <button
+            onClick={() => setView("campaigns")}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              view === "campaigns"
+                ? "bg-[var(--purple)] text-white"
+                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+            }`}
+          >
+            Campaigns
+          </button>
+          <button
+            onClick={() => setView("recent")}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              view === "recent"
+                ? "bg-[var(--purple)] text-white"
+                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+            }`}
+          >
+            Recent
+          </button>
+        </div>
+      </div>
+
+      {/* Source breakdown pills */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {data.bySource.map((s) => (
+          <span
+            key={s.source}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs"
+          >
+            <span className="w-2 h-2 rounded-full bg-[var(--orange)]" />
+            <span className="text-[var(--text-secondary)] font-medium">{s.source}</span>
+            <span className="text-[var(--text-tertiary)] font-mono">{s.count}</span>
+          </span>
+        ))}
+      </div>
+
+      {view === "campaigns" && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-[var(--text-tertiary)] font-mono uppercase tracking-wider text-[10px]">
+                <th className="text-left py-2 px-2">Source</th>
+                <th className="text-left py-2 px-2">Medium</th>
+                <th className="text-left py-2 px-2">Campaign</th>
+                <th className="text-left py-2 px-2">Content</th>
+                <th className="text-right py-2 px-2">Users</th>
+                <th className="text-right py-2 px-2 hidden sm:table-cell">First Seen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.campaigns.map((c, i) => (
+                <tr key={i} className="border-t border-white/5 hover:bg-white/[0.02] transition-colors">
+                  <td className="py-2.5 px-2">
+                    <span className="text-[var(--orange)] font-medium">{c.source}</span>
+                  </td>
+                  <td className="py-2.5 px-2 text-[var(--text-secondary)]">
+                    {c.medium || <span className="text-[var(--text-tertiary)]">—</span>}
+                  </td>
+                  <td className="py-2.5 px-2 text-[var(--text-secondary)]">
+                    {c.campaign || <span className="text-[var(--text-tertiary)]">—</span>}
+                  </td>
+                  <td className="py-2.5 px-2">
+                    <div>
+                      <span className="text-white">{c.contentTitle}</span>
+                      <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-[var(--text-tertiary)] font-mono">
+                        {c.contentType === "learning_path" ? "path" : "module"}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-2.5 px-2 text-right">
+                    <span className="font-mono font-bold text-[var(--cyan)]">{c.count}</span>
+                  </td>
+                  <td className="py-2.5 px-2 text-right hidden sm:table-cell">
+                    <span className="text-[var(--text-tertiary)] font-mono">
+                      {new Date(c.firstSeen).toLocaleDateString()}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {view === "recent" && (
+        <div className="space-y-2">
+          {data.recentAttributions.map((a, i) => (
+            <div key={i} className="flex items-center gap-3 py-2 border-t border-white/5 text-xs">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-[var(--orange)] font-medium">{a.utmSource}</span>
+                  {a.utmMedium && (
+                    <span className="text-[var(--text-tertiary)]">/ {a.utmMedium}</span>
+                  )}
+                  {a.utmCampaign && (
+                    <span className="text-[var(--text-tertiary)]">/ {a.utmCampaign}</span>
+                  )}
+                </div>
+                <p className="text-[var(--text-secondary)] truncate">
+                  {a.contentTitle}
+                  <span className="ml-1.5 text-[10px] px-1 py-0.5 rounded bg-white/5 text-[var(--text-tertiary)] font-mono">
+                    {a.contentType === "learning_path" ? "path" : "module"}
+                  </span>
+                </p>
+              </div>
+              <span className="text-[var(--text-tertiary)] font-mono flex-shrink-0">
+                {new Date(a.firstSeenAt).toLocaleDateString()}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Dashboard ───────────────────────────────────────────
 
 function Dashboard({ password }: { password: string }) {
@@ -1165,6 +1346,11 @@ function Dashboard({ password }: { password: string }) {
               users={data.leaderboard.slice(0, 10)}
             />
           </div>
+        </div>
+
+        {/* UTM Attribution */}
+        <div className="mb-8">
+          <UtmPanel data={data.utmStats} />
         </div>
 
         {/* Leaderboard */}
